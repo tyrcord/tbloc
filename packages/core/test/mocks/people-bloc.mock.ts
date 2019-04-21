@@ -1,12 +1,14 @@
-import { UnidirectionalBloc } from '../../src/blocs/unidirectional.bloc';
-import { PeopleBlocState } from './people-bloc-state.mock';
-import { PeopleBlocEvent } from './people-bloc-event.mock';
-
 import {
-  BidirectionalBloc, BidirectionalBlocUpdateStrategy
+  BidirectionalBloc,
+  BidirectionalBlocUpdateStrategy,
 } from '../../src/blocs/bidirectional.bloc';
+import { UnidirectionalBloc } from '../../src/blocs/unidirectional.bloc';
+import { PeopleBlocEvent } from './people-bloc-event.mock';
+import { PeopleBlocState } from './people-bloc-state.mock';
 
-export class UnidirectionalPeopleBloc extends UnidirectionalBloc<PeopleBlocState> {
+export class UnidirectionalPeopleBloc extends UnidirectionalBloc<
+  PeopleBlocState
+> {
   public put(state: PeopleBlocState) {
     this.setState(state);
   }
@@ -16,17 +18,14 @@ export class UnidirectionalPeopleBloc extends UnidirectionalBloc<PeopleBlocState
   }
 }
 
-export class BidirectionalPeopleBloc
-  extends BidirectionalBloc<PeopleBlocEvent, PeopleBlocState> {
-
-  protected mapEventToState(event: PeopleBlocEvent): PeopleBlocState | void {
-    if (event.type === PeopleBlocEvent.Type) {
-      return event.payload;
-    }
-  }
-
-  public setUpdateStrategy(updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy) {
-    return this.updateStrategy = updateStrategy;
+export class BidirectionalPeopleBloc extends BidirectionalBloc<
+  PeopleBlocEvent,
+  PeopleBlocState
+> {
+  public setUpdateStrategy(
+    updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy,
+  ) {
+    return (this.updateStrategy = updateStrategy);
   }
 
   public getUpdateStrategy() {
@@ -39,5 +38,11 @@ export class BidirectionalPeopleBloc
 
   public patch(state: PeopleBlocState) {
     this.patchState(state);
+  }
+
+  protected mapEventToState(event: PeopleBlocEvent): PeopleBlocState | void {
+    if (event.type === PeopleBlocEvent.Type) {
+      return event.payload;
+    }
   }
 }

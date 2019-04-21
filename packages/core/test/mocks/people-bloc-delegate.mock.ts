@@ -1,28 +1,26 @@
-import { UnidirectionalBlocDelegate } from '../../src/types/unidirectional-bloc-delegate.type';
 import { BidirectionalBlocDelegate } from '../../src/types/bidirectional-bloc-delegate.type';
-import { PeopleBlocState } from './people-bloc-state.mock';
+import { UnidirectionalBlocDelegate } from '../../src/types/unidirectional-bloc-delegate.type';
 import { PeopleBlocEvent } from './people-bloc-event.mock';
+import { PeopleBlocState } from './people-bloc-state.mock';
 
 export class UnidirectionalPeopleBlocDelegate
   implements UnidirectionalBlocDelegate<PeopleBlocState> {
+  public blocStateWillChange(): void {}
 
-  blocStateWillChange(): void { }
+  public blocStateDidChange(): void {}
 
-  blocStateDidChange(): void { }
-
-  blocDidCatchError(): void { }
+  public blocDidCatchError(): void {}
 }
 
 export class BidirectionalPeopleBlocDelegate
   implements BidirectionalBlocDelegate<PeopleBlocEvent, PeopleBlocState> {
+  public blocStateWillChange(): void {}
 
-  blocStateWillChange(): void { }
+  public blocStateDidChange(): void {}
 
-  blocStateDidChange(): void { }
+  public blocDidCatchError(): void {}
 
-  blocDidCatchError(): void { }
+  public blocWillProcessEvent(): void {}
 
-  blocWillProcessEvent(): void { }
-
-  blocDidProcessEvent(): void { }
+  public blocDidProcessEvent(): void {}
 }

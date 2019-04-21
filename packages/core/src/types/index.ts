@@ -1,12 +1,14 @@
-export { UnidirectionalBlocDelegate } from './unidirectional-bloc-delegate.type';
+export {
+  UnidirectionalBlocDelegate,
+} from './unidirectional-bloc-delegate.type';
 export { BlocEvent } from './bloc-event.type';
 
 export {
   BidirectionalBlocTransitionStart,
-  BidirectionalBlocTransitionEnd
+  BidirectionalBlocTransitionEnd,
 } from './bidirectional-bloc-transition.type';
 
 export {
   UnidirectionalBlocTransitionEnd,
-  UnidirectionalBlocTransitionStart
+  UnidirectionalBlocTransitionStart,
 } from './unidirectional-bloc-transition.type';

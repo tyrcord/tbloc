@@ -1,9 +1,6 @@
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-
-import {
-  UnidirectionalBlocDelegate
-} from '../types/unidirectional-bloc-delegate.type';
+import { UnidirectionalBlocDelegate } from '../types/unidirectional-bloc-delegate.type';
 
 /**
  * Abstract class that
@@ -42,9 +39,8 @@ export abstract class Bloc<T, K = {}> {
    * @returns boolean
    */
   protected delegateRespondsToMethod(
-    name: keyof UnidirectionalBlocDelegate<T> | K)
-    : boolean {
-
+    name: keyof UnidirectionalBlocDelegate<T> | K,
+  ): boolean {
     const delegate = this.delegate;
     return delegate && typeof delegate[name] === 'function';
   }
@@ -58,7 +54,7 @@ export abstract class Bloc<T, K = {}> {
         // @ts-ignore -- `delegate` is safe here,
         // thanks to`delegateRespondsToMethod`
         responseFromDelegate = this.delegate.blocStateWillChange(this, {
-          currentState: currentState,
+          currentState,
           nextState: candidateState,
         });
       } catch (error) {
@@ -79,18 +75,20 @@ export abstract class Bloc<T, K = {}> {
       promise = Promise.resolve(nextState);
     }
 
-    promise.then(finalState => {
-      this.dispatchState(finalState);
+    promise
+      .then(finalState => {
+        this.dispatchState(finalState);
 
-      if (this.delegateRespondsToMethod('blocStateDidChange')) {
-        // @ts-ignore -- `delegate` is safe here,
-        // thanks to`delegateRespondsToMethod`
-        this.delegate.blocStateDidChange(this, {
-          previousState: currentState,
-          currentState: finalState,
-        });
-      }
-    }).catch(this.handleError);
+        if (this.delegateRespondsToMethod('blocStateDidChange')) {
+          // @ts-ignore -- `delegate` is safe here,
+          // thanks to`delegateRespondsToMethod`
+          this.delegate.blocStateDidChange(this, {
+            currentState: finalState,
+            previousState: currentState,
+          });
+        }
+      })
+      .catch(this.handleError);
   }
 
   protected patchState = (candidateState: T) => {
@@ -100,7 +98,7 @@ export abstract class Bloc<T, K = {}> {
       ...currentState,
       ...candidateState,
     });
-  }
+  };
 
   protected handleError = (error: Error) => {
     if (this.delegateRespondsToMethod('blocDidCatchError')) {
@@ -112,5 +110,5 @@ export abstract class Bloc<T, K = {}> {
       // thanks to`delegateRespondsToMethod`
       this.delegate.blocDidCatchError(this, error, this.currentState);
     }
-  }
+  };
 }

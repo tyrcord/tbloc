@@ -1,8 +1,7 @@
 import { BlocEvent } from './bloc-event.type';
-
 import {
+  UnidirectionalBlocTransitionEnd,
   UnidirectionalBlocTransitionStart,
-  UnidirectionalBlocTransitionEnd
 } from './unidirectional-bloc-transition.type';
 
 export type BidirectionalBlocTransitionStart<T extends BlocEvent, K = {}> = {

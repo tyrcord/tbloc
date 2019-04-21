@@ -1,29 +1,37 @@
 import { Observable } from 'rxjs';
-
 import { BidirectionalBloc } from '../blocs/bidirectional.bloc';
-import { BlocEvent } from './bloc-event.type';
-
 import {
+  BidirectionalBlocTransitionEnd,
   BidirectionalBlocTransitionStart,
-  BidirectionalBlocTransitionEnd
 } from './bidirectional-bloc-transition.type';
+import { BlocEvent } from './bloc-event.type';
 
 export type BidirectionalBlocDelegate<T extends BlocEvent, K = {}> = {
   blocStateWillChange?: (
     bloc: BidirectionalBloc<T>,
-    bidirectionalBlocTransition: BidirectionalBlocTransitionStart<T, K>
-  ) => (
-      K | Observable<K> | Promise<K> | void | null
-    );
+    bidirectionalBlocTransition: BidirectionalBlocTransitionStart<T, K>,
+  ) => K | Observable<K> | Promise<K> | void | null;
 
   blocStateDidChange?: (
     bloc: BidirectionalBloc<T>,
-    bidirectionalBlocTransition: BidirectionalBlocTransitionEnd<T, K>
+    bidirectionalBlocTransition: BidirectionalBlocTransitionEnd<T, K>,
   ) => void;
 
-  blocWillProcessEvent?: (bloc: BidirectionalBloc<T, K>, event: T, state: K) => void | T;
+  blocWillProcessEvent?: (
+    bloc: BidirectionalBloc<T, K>,
+    event: T,
+    state: K,
+  ) => void | T;
 
-  blocDidProcessEvent?: (bloc: BidirectionalBloc<T>, event: T, state: K) => void;
+  blocDidProcessEvent?: (
+    bloc: BidirectionalBloc<T>,
+    event: T,
+    state: K,
+  ) => void;
 
-  blocDidCatchError?: (bloc: BidirectionalBloc<T>, error: Error, state: K) => void;
+  blocDidCatchError?: (
+    bloc: BidirectionalBloc<T>,
+    error: Error,
+    state: K,
+  ) => void;
 };
