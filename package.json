@@ -1,0 +1,9 @@
+{
+  "name": "tbloc",
+  "author": "Tyrcord Inc. <dev@tyrcord.com>",
+  "license": "ISC",
+  "private": true,
+  "devDependencies": {
+    "lerna": "^3.13.3"
+  }
+}
