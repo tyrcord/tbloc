@@ -9,12 +9,8 @@
     "url": "https://github.com/tyrcord/tbloc.git",
     "directory": "packages/core"
   },
-  "directories": {
-    "lib": "dist",
-    "test": "tests"
-  },
   "files": [
-    "lib"
+    "dist/**/*"
   ],
   "publishConfig": {
     "access": "public"
