@@ -5,28 +5,28 @@ import { UnidirectionalBlocDelegate } from '../types/unidirectional-bloc-delegat
 /**
  * Abstract class that
  */
-export abstract class Bloc<T, K = {}> {
+export abstract class Bloc<S, E = {}> {
   public abstract delegate: any;
 
-  protected stateController: BehaviorSubject<T>;
+  protected stateController: BehaviorSubject<S>;
 
-  public get currentState(): T {
+  public get currentState(): S {
     return this.stateController.getValue();
   }
 
-  public get stream(): Observable<T> {
+  public get stream(): Observable<S> {
     return this.stateController.asObservable();
   }
 
-  constructor(initialState: T) {
-    this.stateController = new BehaviorSubject<T>(initialState);
+  constructor(initialState: S) {
+    this.stateController = new BehaviorSubject<S>(initialState);
   }
 
   public dispose(): void {
     this.stateController!.complete();
   }
 
-  protected dispatchState(state: T) {
+  protected dispatchState(state: S) {
     this.stateController.next(state);
   }
 
@@ -39,13 +39,13 @@ export abstract class Bloc<T, K = {}> {
    * @returns boolean
    */
   protected delegateRespondsToMethod(
-    name: keyof UnidirectionalBlocDelegate<T> | K,
+    name: keyof UnidirectionalBlocDelegate<S> | E,
   ): boolean {
     const delegate = this.delegate;
     return delegate && typeof delegate[name] === 'function';
   }
 
-  protected setState(candidateState: T) {
+  protected setState(candidateState: S) {
     const currentState = this.currentState;
     let responseFromDelegate: any;
 
@@ -63,7 +63,7 @@ export abstract class Bloc<T, K = {}> {
     }
 
     const nextState = responseFromDelegate || candidateState;
-    let promise: Promise<T>;
+    let promise: Promise<S>;
 
     if (nextState instanceof Promise) {
       promise = nextState;
@@ -91,7 +91,7 @@ export abstract class Bloc<T, K = {}> {
       .catch(this.handleError);
   }
 
-  protected patchState = (candidateState: T) => {
+  protected patchState = (candidateState: S) => {
     const currentState = this.currentState;
 
     this.setState({

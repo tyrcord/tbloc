@@ -1,5 +1,6 @@
 import { Observable, Subject, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+
 import { BidirectionalBlocDelegate } from '../types/bidirectional-bloc-delegate.type';
 import { BlocEvent } from '../types/bloc-event.type';
 import { Bloc } from './bloc';
@@ -10,28 +11,28 @@ export enum BidirectionalBlocUpdateStrategy {
 }
 
 export abstract class BidirectionalBloc<
-  T extends BlocEvent,
-  K = {}
-> extends Bloc<K, keyof BidirectionalBlocDelegate<T, K>> {
-  public delegate: BidirectionalBlocDelegate<T, K>;
+  E extends BlocEvent,
+  S = {}
+> extends Bloc<S, keyof BidirectionalBlocDelegate<E, S>> {
+  public delegate: BidirectionalBlocDelegate<E, S>;
 
   protected updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy =
     BidirectionalBlocUpdateStrategy.merge;
 
-  protected eventController: Subject<T> = new Subject<T>();
+  protected eventController: Subject<E> = new Subject<E>();
 
   protected eventSubscription: Subscription;
 
-  constructor(initialState: K) {
+  constructor(initialState: S) {
     super(initialState);
 
     this.eventSubscription = this.eventController.subscribe(
-      (candidateEvent: T) => {
+      (candidateEvent: E) => {
         const currentState = this.currentState || initialState;
 
-        let mappedState: K | Observable<K> | Promise<K> | void | null;
-        let delegateEvent: T | void;
-        let promise: Promise<K>;
+        let mappedState: S | Observable<S> | Promise<S> | void | null;
+        let delegateEvent: E | void;
+        let promise: Promise<S>;
 
         if (this.delegateRespondsToMethod('blocWillProcessEvent')) {
           // @ts-ignore -- `delegate` is safe here,
@@ -64,7 +65,7 @@ export abstract class BidirectionalBloc<
         }
 
         promise
-          .then((nextState: K) => {
+          .then((nextState: S) => {
             const { meta } = event;
             const updateStrategy =
               meta && meta.updateStrategy
@@ -88,7 +89,7 @@ export abstract class BidirectionalBloc<
     );
   }
 
-  public dispatchEvent(event: T) {
+  public dispatchEvent(event: E) {
     this.eventController.next(event);
   }
 
@@ -100,7 +101,10 @@ export abstract class BidirectionalBloc<
   }
 
   protected abstract mapEventToState(
-    event: T,
-    currentState: K,
-  ): K | Observable<K> | Promise<K> | void | null;
+    event: E,
+    currentState: S,
+  ): S | Observable<S> | Promise<S> | void | null;
+
+  protected eventFactory?(): E;
+
 }
