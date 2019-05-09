@@ -100,6 +100,13 @@ export abstract class BidirectionalBloc<
     this.eventSubscription!.unsubscribe();
   }
 
+  protected noSupportForEvent(event: E): never {
+    throw new Error(
+      `bloc ${this.constructor.name} doesn't support bloc event type:
+      ${event.type}`
+    );
+  }
+
   protected abstract mapEventToState(
     event: E,
     currentState: S,
