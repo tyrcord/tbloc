@@ -93,6 +93,20 @@ export abstract class BidirectionalBloc<
     this.eventController.next(event);
   }
 
+  public dispatchPayload(payload: any) {
+    if (typeof this.eventFactory === 'function') {
+      const event = this.eventFactory();
+      event.payload = payload;
+
+      this.dispatchEvent(event);
+    } else {
+      throw new Error(
+        `the class "${this.constructor.name}" must implements the  method
+        "eventFactory" in order to use the method dispatchPayload`
+      );
+    }
+  }
+
   public dispose(): void {
     super.dispose();
 
