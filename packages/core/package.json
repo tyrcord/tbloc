@@ -21,25 +21,28 @@
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
-    "test": "mocha --require ts-node/register 'test/**/*.spec.ts'"
+    "test": "mocha",
+    "coverage": "nyc npm run test"
   },
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "dependencies": {
-    "rxjs": "^6.5.1"
+    "rxjs": "6.5.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.6",
-    "@types/sinon": "^7.0.11",
-    "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "@types/chai": "4.1.7",
+    "@types/mocha": "5.2.6",
+    "@types/sinon": "7.0.11",
+    "chai": "4.2.0",
+    "mocha": "6.1.4",
+    "nyc": "14.1.1",
     "prettier": "1.17.0",
-    "sinon": "^7.3.2",
-    "ts-node": "^8.1.0",
-    "tslib": "^1.9.3",
+    "sinon": "7.3.2",
+    "source-map-support": "0.5.12",
+    "ts-node": "8.1.0",
+    "tslib": "1.9.3",
     "tslint": "5.16.0",
     "tslint-config-prettier": "1.18.0",
-    "typescript": "^3.4.5"
+    "typescript": "3.4.5"
   }
 }
