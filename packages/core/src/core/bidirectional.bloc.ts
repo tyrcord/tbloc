@@ -3,8 +3,8 @@ import { take } from 'rxjs/operators';
 
 import { BidirectionalBlocDelegate } from '../types/bidirectional-bloc-delegate.type';
 import { BlocEvent } from '../types/bloc-event.type';
-import { Bloc } from './bloc';
-import { BlocStateBuilder } from './bloc-state.builder';
+import { Bloc, BlocStateBuilderFunc } from './bloc';
+import { IBlocStateBuilder } from './bloc-state.builder';
 
 export enum BidirectionalBlocUpdateStrategy {
   merge = 'merge',
@@ -23,7 +23,10 @@ export abstract class BidirectionalBloc<
 
   protected eventSubscription: Subscription;
 
-  constructor(initialState?: S, builder?: BlocStateBuilder<S>) {
+  constructor(
+    initialState?: S,
+    builder?: IBlocStateBuilder<S> | BlocStateBuilderFunc<S>,
+  ) {
     super(initialState, builder);
 
     this.eventSubscription = this.eventController.subscribe(

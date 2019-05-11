@@ -2,7 +2,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { UnidirectionalBlocDelegate } from 'src/types/unidirectional-bloc-delegate.type';
-import { BlocStateBuilder } from './bloc-state.builder';
+import { BlocStateBuilder, IBlocStateBuilder } from './bloc-state.builder';
+
+export type BlocStateBuilderFunc<S extends object> = () => S;
 
 /**
  * Abstract class that
@@ -15,7 +17,7 @@ export abstract class Bloc<
 
   protected stateController: BehaviorSubject<S>;
 
-  protected stateBuilder: BlocStateBuilder<S>;
+  protected stateBuilder: IBlocStateBuilder<S> | BlocStateBuilderFunc<S>;
 
   public get currentState(): S {
     return this.stateController.getValue();
@@ -25,9 +27,21 @@ export abstract class Bloc<
     return this.stateController.asObservable();
   }
 
-  constructor(initialState?: S, builder?: BlocStateBuilder<S>) {
-    this.stateBuilder = builder ? builder : new BlocStateBuilder<S>();
-    initialState = initialState || this.stateBuilder.default();
+  constructor(
+    initialState?: S,
+    builder?: IBlocStateBuilder<S> | BlocStateBuilderFunc<S>,
+  ) {
+    builder = builder ? builder : new BlocStateBuilder<S>();
+
+    if (!initialState) {
+      if (typeof builder === 'function') {
+        initialState = builder();
+      } else {
+        initialState = builder.buildDefault();
+      }
+    }
+
+    this.stateBuilder = builder;
     this.stateController = new BehaviorSubject<S>(initialState);
   }
 
