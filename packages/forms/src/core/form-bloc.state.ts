@@ -12,6 +12,11 @@ export type FormFieldState<T = {}> = {
   errors: ValidationError[];
 };
 
+export type FormBlocStateFields = {
+  [key: string]: FormFieldState;
+};
+
 export type FormBlocState = {
-  [index: string]: FormFieldState;
+  fields: FormBlocStateFields;
+  valid: boolean;
 };

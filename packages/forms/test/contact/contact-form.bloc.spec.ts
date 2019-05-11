@@ -29,7 +29,7 @@ describe('ContactFormBloc', () => {
       name: 'foo',
     };
 
-    validState = stateBuilder.buildFromModel(contactModel);
+    validState = stateBuilder.buildFromModel(contactModel, true);
   });
 
   afterEach(() => {
@@ -38,10 +38,10 @@ describe('ContactFormBloc', () => {
 
   describe('#constructor()', () => {
     it('should allow to create a new ContactFormBloc with an custom inital state', done => {
-      validState.subject.value = 'hello';
+      validState.fields.subject.value = 'hello';
       bloc = new ContactFormBloc(validState);
 
-      bloc.stream.pipe(take(1)).subscribe(({ subject }) => {
+      bloc.stream.pipe(take(1)).subscribe(({ fields: { subject } }) => {
         expect(subject.value).to.equal('hello');
         done();
       });
@@ -49,7 +49,7 @@ describe('ContactFormBloc', () => {
 
     it('should allow to create a new ContactFormBloc with an custom schema', done => {
       bloc = new ContactFormBloc(
-        null,
+        void 0,
         ContactFormBlocSchema.defaultWithRequiredSubject(),
       );
 
@@ -69,7 +69,7 @@ describe('ContactFormBloc', () => {
           skip(1),
           take(1),
         )
-        .subscribe(({ name }) => {
+        .subscribe(({ fields: { name } }) => {
           expect(name.value).to.equal('foo');
           expect(name.valid).to.equal(true);
           expect(name.required).to.equal(true);
@@ -126,7 +126,7 @@ describe('ContactFormBloc', () => {
           skip(1),
           take(1),
         )
-        .subscribe(({ email }) => {
+        .subscribe(({ fields: { email } }) => {
           expect(email.value).to.equal('qux@tyrcord.com');
           expect(email.valid).to.equal(true);
           expect(email.required).to.equal(true);
@@ -183,7 +183,7 @@ describe('ContactFormBloc', () => {
           skip(1),
           take(1),
         )
-        .subscribe(({ subject }) => {
+        .subscribe(({ fields: { subject } }) => {
           expect(subject.value).to.equal('question');
           expect(subject.valid).to.equal(true);
           expect(subject.required).to.equal(false);
@@ -240,7 +240,7 @@ describe('ContactFormBloc', () => {
           skip(1),
           take(1),
         )
-        .subscribe(({ message }) => {
+        .subscribe(({ fields: { message } }) => {
           expect(message.value).to.equal('message');
           expect(message.valid).to.equal(true);
           expect(message.required).to.equal(true);

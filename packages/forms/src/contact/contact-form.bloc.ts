@@ -55,11 +55,13 @@ export class ContactFormBloc extends FormBloc<
   }
 
   protected mapStateToModel(state: ContactFormBlocState): ContactFormBlocModel {
+    const { email, message, name, subject } = state.fields;
+
     return {
-      email: state.email.value,
-      message: state.message.value,
-      name: state.name.value,
-      subject: state.subject.value,
+      email: email.value,
+      message: message.value,
+      name: name.value,
+      subject: subject.value,
     };
   }
 
@@ -67,16 +69,8 @@ export class ContactFormBloc extends FormBloc<
     model: ContactFormBlocModel,
     errors?: ValidationError[],
   ): ContactFormBlocState {
-    const builder = this.stateBuilder;
-    const state = {
-      email: builder.buildFormFieldState<string>(model.email, true),
-      message: builder.buildFormFieldState<string>(model.message, true),
-      name: builder.buildFormFieldState<string>(model.name, true),
-      subject: builder.buildFormFieldState<string>(model.subject),
-    };
-
-    this.addErrorsToState(state, errors);
-
+    const state = this.stateBuilder.buildFromModel(model);
+    this.stateBuilder.addErrorsToState(state, errors);
     return state;
   }
 }

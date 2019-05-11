@@ -1,26 +1,39 @@
+import { IBlocStateBuilder } from '@tbloc/core';
+
 import { FormBlocStateBuilder } from '../core/form-bloc-state.builder';
 import { ContactFormBlocModel } from './contact-form-bloc.model';
 import { ContactFormBlocState } from './contact-form-bloc.state';
 
-export class ContactFormBlocStateBuilder extends FormBlocStateBuilder<
-  ContactFormBlocState
-> {
-  public default(): ContactFormBlocState {
-    return {
+export class ContactFormBlocStateBuilder
+  extends FormBlocStateBuilder<ContactFormBlocState>
+  implements IBlocStateBuilder<ContactFormBlocState> {
+  public buildDefault(): ContactFormBlocState {
+    const state = super.buildDefault();
+
+    state.fields = {
       email: this.buildFormFieldState<string>(null, true),
       message: this.buildFormFieldState<string>(null, true),
       name: this.buildFormFieldState<string>(null, true),
       subject: this.buildFormFieldState<string>(null),
     };
+
+    return state;
   }
 
-  public buildFromModel(model: ContactFormBlocModel) {
+  public buildFromModel(
+    model: ContactFormBlocModel,
+    valid = false,
+  ): ContactFormBlocState {
     const { email, message, name, subject } = model;
+
     return {
-      email: this.buildFormFieldState<string>(email, true),
-      message: this.buildFormFieldState<string>(message, true),
-      name: this.buildFormFieldState<string>(name, true),
-      subject: this.buildFormFieldState<string>(subject),
+      fields: {
+        email: this.buildFormFieldState<string>(email, true),
+        message: this.buildFormFieldState<string>(message, true),
+        name: this.buildFormFieldState<string>(name, true),
+        subject: this.buildFormFieldState<string>(subject),
+      },
+      valid,
     };
   }
 }

@@ -4,7 +4,7 @@ import { ObjectSchema, ValidationError } from 'yup';
 
 import { FormBlocStateBuilder } from './form-bloc-state.builder';
 import { FormBlocDelegate } from './form-bloc.delegate';
-import { FormBlocState, FormFieldState } from './form-bloc.state';
+import { FormBlocState } from './form-bloc.state';
 
 export abstract class FormBloc<
   M extends object,
@@ -48,30 +48,26 @@ export abstract class FormBloc<
         abortEarly: false,
       });
     } catch (validationError) {
-      errors = (validationError as ValidationError).inner;
+      if (validationError.inner.length) {
+        errors = (validationError as ValidationError).inner;
+      } else {
+        errors = [validationError];
+      }
+
       model = (validationError as ValidationError).value;
     }
 
-    if (!errors && this.delegateRespondsToMethod('blocDidValidateModel')) {
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      delegateEvent = this.delegate.blocDidValidateModel(this, event, model);
-    }
+    if (!errors) {
+      this.modelController.next(model);
 
-    this.modelController.next(model);
-
-    return this.mapModelToState(model, errors);
-  }
-
-  protected addErrorsToState(state: S, errors?: ValidationError[]) {
-    if (errors) {
-      for (const error of errors) {
-        const path = error.path;
-        const fieldControl: FormFieldState = state[path];
-        fieldControl.errors.push(error);
-        fieldControl.valid = false;
+      if (this.delegateRespondsToMethod('blocDidValidateModel')) {
+        // @ts-ignore -- `delegate` is safe here,
+        // thanks to`delegateRespondsToMethod`
+        delegateEvent = this.delegate.blocDidValidateModel(this, event, model);
       }
     }
+
+    return this.mapModelToState(model, errors);
   }
 
   protected abstract mapEventToModel(event: E, currentModel: M): M;
