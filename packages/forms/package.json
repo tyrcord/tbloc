@@ -1,0 +1,51 @@
+{
+  "name": "@tbloc/forms",
+  "version": "0.2.2",
+  "author": "Tyrcord Inc. <dev@tyrcord.com>",
+  "license": "ISC",
+  "homepage": "https://github.com/tyrcord/tbloc/blob/master/packages/core/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tyrcord/tbloc.git",
+    "directory": "packages/core"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "test": "mocha",
+    "coverage": "nyc npm run test"
+  },
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "dependencies": {
+    "@tbloc/core": "0.2.2",
+    "rxjs": "6.5.2",
+    "yup": "0.27.0"
+  },
+  "devDependencies": {
+    "@types/chai": "4.1.7",
+    "@types/mocha": "5.2.6",
+    "@types/sinon": "7.0.11",
+    "@types/yup": "0.26.13",
+    "chai": "4.2.0",
+    "mocha": "6.1.4",
+    "nyc": "14.1.1",
+    "prettier": "1.17.0",
+    "sinon": "7.3.2",
+    "source-map-support": "0.5.12",
+    "ts-node": "8.1.0",
+    "tslib": "1.9.3",
+    "tslint": "5.16.0",
+    "tslint-config-prettier": "1.18.0",
+    "typescript": "3.4.5"
+  }
+}

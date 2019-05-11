@@ -1,0 +1,21 @@
+{
+  "extension": [
+    ".ts",
+    ".tsx"
+  ],
+  "exclude": [
+    "**/*.d.ts",
+    "coverage",
+    "test"
+  ],
+  "reporter": [
+    "html",
+    "text"
+  ],
+  "all": true,
+  "check-coverage": false,
+  "statements": 80,
+  "functions": 80,
+  "branches": 80,
+  "lines": 80
+}

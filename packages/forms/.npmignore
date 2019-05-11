@@ -1,0 +1,12 @@
+.nyc_output
+.vscode
+
+coverage
+src
+tests
+
+.nycrc.json
+.prettierrc.json
+
+tsconfig.json
+tslint.json

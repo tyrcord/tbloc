@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "tslint-config-prettier"
+  ],
+  "rules": {
+    "interface-over-type-literal": false,
+    "max-classes-per-file": false,
+    "no-empty": [
+      true,
+      "allow-empty-functions"
+    ]
+  }
+}
