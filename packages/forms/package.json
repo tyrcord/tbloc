@@ -1,6 +1,6 @@
 {
   "name": "@tbloc/forms",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "author": "Tyrcord Inc. <dev@tyrcord.com>",
   "license": "ISC",
   "homepage": "https://github.com/tyrcord/tbloc/blob/master/packages/core/README.md",
@@ -27,7 +27,7 @@
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "dependencies": {
-    "@tbloc/core": "0.2.2",
+    "@tbloc/core": "^0.3.0",
     "rxjs": "6.5.2",
     "yup": "0.27.0"
   },
