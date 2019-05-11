@@ -1,24 +1,24 @@
 import { Observable } from 'rxjs';
-import { UnidirectionalBloc } from '../blocs/unidirectional.bloc';
+import { UnidirectionalBloc } from '../core/unidirectional.bloc';
 import {
   UnidirectionalBlocTransitionEnd,
   UnidirectionalBlocTransitionStart,
 } from './unidirectional-bloc-transition.type';
 
-export type UnidirectionalBlocDelegate<T = {}> = {
+export type UnidirectionalBlocDelegate<S extends object = {}> = {
   blocStateWillChange?: (
-    bloc: UnidirectionalBloc<T>,
-    unidirectionalBlocTransition: UnidirectionalBlocTransitionStart<T>,
-  ) => T | Observable<T> | Promise<T> | void | null;
+    bloc: UnidirectionalBloc<S>,
+    unidirectionalBlocTransition: UnidirectionalBlocTransitionStart<S>,
+  ) => S | Observable<S> | Promise<S> | void | null;
 
   blocStateDidChange?: (
-    bloc: UnidirectionalBloc<T>,
-    unidirectionalBlocTransition: UnidirectionalBlocTransitionEnd<T>,
+    bloc: UnidirectionalBloc<S>,
+    unidirectionalBlocTransition: UnidirectionalBlocTransitionEnd<S>,
   ) => void;
 
   blocDidCatchError?: (
-    bloc: UnidirectionalBloc<T>,
+    bloc: UnidirectionalBloc<S>,
     error: Error,
-    state: T,
+    state: S,
   ) => void;
 };

@@ -1,8 +1,8 @@
 import {
   BidirectionalBloc,
   BidirectionalBlocUpdateStrategy,
-} from '../../src/blocs/bidirectional.bloc';
-import { UnidirectionalBloc } from '../../src/blocs/unidirectional.bloc';
+} from '../../src/core/bidirectional.bloc';
+import { UnidirectionalBloc } from '../../src/core/unidirectional.bloc';
 import { PeopleBlocEvent } from './people-bloc-event.mock';
 import { PeopleBlocState } from './people-bloc-state.mock';
 

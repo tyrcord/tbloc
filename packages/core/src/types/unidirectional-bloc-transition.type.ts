@@ -1,9 +1,9 @@
-export type UnidirectionalBlocTransitionStart<T = {}> = {
-  currentState: T;
-  nextState: T;
+export type UnidirectionalBlocTransitionStart<S = {}> = {
+  currentState: S;
+  nextState: S;
 };
 
-export type UnidirectionalBlocTransitionEnd<T = {}> = {
-  currentState: T;
-  previousState: T;
+export type UnidirectionalBlocTransitionEnd<S = {}> = {
+  currentState: S;
+  previousState: S;
 };

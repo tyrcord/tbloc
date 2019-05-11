@@ -4,6 +4,7 @@ import { take } from 'rxjs/operators';
 import { BidirectionalBlocDelegate } from '../types/bidirectional-bloc-delegate.type';
 import { BlocEvent } from '../types/bloc-event.type';
 import { Bloc } from './bloc';
+import { BlocStateBuilder } from './bloc-state.builder';
 
 export enum BidirectionalBlocUpdateStrategy {
   merge = 'merge',
@@ -12,10 +13,9 @@ export enum BidirectionalBlocUpdateStrategy {
 
 export abstract class BidirectionalBloc<
   E extends BlocEvent,
-  S = {}
-> extends Bloc<S, keyof BidirectionalBlocDelegate<E, S>> {
-  public delegate: BidirectionalBlocDelegate<E, S>;
-
+  S extends object = {},
+  D extends BidirectionalBlocDelegate<E, S> = {}
+> extends Bloc<S, D> {
   protected updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy =
     BidirectionalBlocUpdateStrategy.merge;
 
@@ -23,12 +23,12 @@ export abstract class BidirectionalBloc<
 
   protected eventSubscription: Subscription;
 
-  constructor(initialState: S) {
-    super(initialState);
+  constructor(initialState?: S, builder?: BlocStateBuilder<S>) {
+    super(initialState, builder);
 
     this.eventSubscription = this.eventController.subscribe(
       (candidateEvent: E) => {
-        const currentState = this.currentState || initialState;
+        const currentState = this.currentState;
 
         let mappedState: S | Observable<S> | Promise<S> | void | null;
         let delegateEvent: E | void;
@@ -102,7 +102,7 @@ export abstract class BidirectionalBloc<
     } else {
       throw new Error(
         `the class "${this.constructor.name}" must implements the  method
-        "eventFactory" in order to use the method dispatchPayload`
+        "eventFactory" in order to use the method dispatchPayload`,
       );
     }
   }
@@ -114,10 +114,14 @@ export abstract class BidirectionalBloc<
     this.eventSubscription!.unsubscribe();
   }
 
+  protected delegateRespondsToMethod(name: keyof D): boolean {
+    return super.delegateRespondsToMethod(name);
+  }
+
   protected noSupportForEvent(event: E): never {
     throw new Error(
       `bloc ${this.constructor.name} doesn't support bloc event type:
-      ${event.type}`
+      ${event.type}`,
     );
   }
 
@@ -127,5 +131,4 @@ export abstract class BidirectionalBloc<
   ): S | Observable<S> | Promise<S> | void | null;
 
   protected eventFactory?(): E;
-
 }

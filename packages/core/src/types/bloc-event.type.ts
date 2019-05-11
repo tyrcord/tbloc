@@ -1,12 +1,12 @@
-import { BidirectionalBlocUpdateStrategy } from '../blocs/bidirectional.bloc';
+import { BidirectionalBlocUpdateStrategy } from '../core/bidirectional.bloc';
 
 export type BlocEventMetada = {
   updateStrategy?: keyof typeof BidirectionalBlocUpdateStrategy;
 };
 
-export type BlocEvent<T = {}, E = {}> = {
+export type BlocEvent<P extends object = {}, M extends object = {}> = {
   type: string;
   error?: Error | string;
-  meta?: E & BlocEventMetada;
-  payload: T;
+  meta?: M & BlocEventMetada;
+  payload: P;
 };

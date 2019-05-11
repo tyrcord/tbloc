@@ -3,7 +3,7 @@ import 'mocha';
 import { Observable, of, throwError } from 'rxjs';
 import { delay, skip, skipWhile, take } from 'rxjs/operators';
 import * as Sinon from 'sinon';
-import { BidirectionalBlocUpdateStrategy } from '../../src/blocs/bidirectional.bloc';
+import { BidirectionalBlocUpdateStrategy } from '../../src/core/bidirectional.bloc';
 import { UnidirectionalBlocDelegate } from '../../src/types/unidirectional-bloc-delegate.type';
 import {
   UnidirectionalBlocTransitionEnd,

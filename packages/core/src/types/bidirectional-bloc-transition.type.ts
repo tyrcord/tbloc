@@ -4,10 +4,16 @@ import {
   UnidirectionalBlocTransitionStart,
 } from './unidirectional-bloc-transition.type';
 
-export type BidirectionalBlocTransitionStart<T extends BlocEvent, K = {}> = {
-  event: T;
-} & UnidirectionalBlocTransitionStart<K>;
+export type BidirectionalBlocTransitionStart<
+  E extends BlocEvent,
+  S extends object = {}
+> = {
+  event: E;
+} & UnidirectionalBlocTransitionStart<S>;
 
-export type BidirectionalBlocTransitionEnd<T extends BlocEvent, K = {}> = {
-  event: T;
-} & UnidirectionalBlocTransitionEnd<K>;
+export type BidirectionalBlocTransitionEnd<
+  E extends BlocEvent,
+  S extends object = {}
+> = {
+  event: E;
+} & UnidirectionalBlocTransitionEnd<S>;

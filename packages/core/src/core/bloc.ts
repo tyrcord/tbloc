@@ -1,14 +1,21 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { UnidirectionalBlocDelegate } from '../types/unidirectional-bloc-delegate.type';
+
+import { UnidirectionalBlocDelegate } from 'src/types/unidirectional-bloc-delegate.type';
+import { BlocStateBuilder } from './bloc-state.builder';
 
 /**
  * Abstract class that
  */
-export abstract class Bloc<S, E = {}> {
-  public abstract delegate: any;
+export abstract class Bloc<
+  S extends object = {},
+  D extends UnidirectionalBlocDelegate = {}
+> {
+  public delegate: D;
 
   protected stateController: BehaviorSubject<S>;
+
+  protected stateBuilder: BlocStateBuilder<S>;
 
   public get currentState(): S {
     return this.stateController.getValue();
@@ -18,7 +25,9 @@ export abstract class Bloc<S, E = {}> {
     return this.stateController.asObservable();
   }
 
-  constructor(initialState: S) {
+  constructor(initialState?: S, builder?: BlocStateBuilder<S>) {
+    this.stateBuilder = builder ? builder : new BlocStateBuilder<S>();
+    initialState = initialState || this.stateBuilder.default();
     this.stateController = new BehaviorSubject<S>(initialState);
   }
 
@@ -38,9 +47,7 @@ export abstract class Bloc<S, E = {}> {
    *
    * @returns boolean
    */
-  protected delegateRespondsToMethod(
-    name: keyof UnidirectionalBlocDelegate<S> | E,
-  ): boolean {
+  protected delegateRespondsToMethod(name: keyof D): boolean {
     const delegate = this.delegate;
     return delegate && typeof delegate[name] === 'function';
   }
