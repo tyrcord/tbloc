@@ -11,5 +11,9 @@
     "hooks": {
       "pre-commit": "lerna run lint && lerna run coverage"
     }
+  },
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "test": "lerna run test"
   }
 }
