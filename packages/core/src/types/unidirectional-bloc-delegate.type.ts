@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import { UnidirectionalBloc } from '../core/unidirectional.bloc';
 import {
   UnidirectionalBlocTransitionEnd,
@@ -9,7 +8,7 @@ export type UnidirectionalBlocDelegate<S extends object = {}> = {
   blocStateWillChange?: (
     bloc: UnidirectionalBloc<S>,
     unidirectionalBlocTransition: UnidirectionalBlocTransitionStart<S>,
-  ) => S | Observable<S> | Promise<S> | void | null;
+  ) => void;
 
   blocStateDidChange?: (
     bloc: UnidirectionalBloc<S>,

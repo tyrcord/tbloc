@@ -1,5 +1,4 @@
 import { Observable, Subject, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 import { BidirectionalBlocDelegate } from '../types/bidirectional-bloc-delegate.type';
 import { BlocEvent } from '../types/bloc-event.type';
@@ -29,67 +28,31 @@ export abstract class BidirectionalBloc<
   ) {
     super(initialState, builder);
 
-    this.eventSubscription = this.eventController.subscribe(
-      (candidateEvent: E) => {
-        const currentState = this.currentState;
+    this.eventSubscription = this.eventController.subscribe((event: E) => {
+      const currentState = this.currentState;
+      let mappedState: S | Observable<S> | Promise<S> | void | null;
 
-        let mappedState: S | Observable<S> | Promise<S> | void | null;
-        let delegateEvent: E | void;
-        let promise: Promise<S>;
+      this.notifyDelegateBlocWillProcessEvent(event, currentState);
 
-        if (this.delegateRespondsToMethod('blocWillProcessEvent')) {
-          // @ts-ignore -- `delegate` is safe here,
-          // thanks to`delegateRespondsToMethod`
-          delegateEvent = this.delegate.blocWillProcessEvent(
-            this,
-            candidateEvent,
-            currentState,
-          );
-        }
+      try {
+        mappedState = this.mapEventToState(event, currentState);
+      } catch (error) {
+        mappedState = Promise.reject(error);
+      }
 
-        const event = delegateEvent || candidateEvent;
+      this.promisifyState(mappedState)
+        .then((nextState: S) => {
+          const { meta } = event;
+          const updateStrategy =
+            meta && meta.updateStrategy
+              ? meta.updateStrategy
+              : this.updateStrategy;
 
-        try {
-          mappedState = this.mapEventToState(event, currentState);
-        } catch (error) {
-          mappedState = Promise.reject(error);
-        }
-
-        if (mappedState instanceof Promise) {
-          promise = mappedState;
-        } else if (mappedState instanceof Error) {
-          promise = Promise.reject(mappedState);
-        } else if (mappedState instanceof Observable) {
-          promise = mappedState.pipe(take(1)).toPromise();
-        } else if (mappedState === null || mappedState === void 0) {
-          promise = Promise.resolve(currentState);
-        } else {
-          promise = Promise.resolve(mappedState);
-        }
-
-        promise
-          .then((nextState: S) => {
-            const { meta } = event;
-            const updateStrategy =
-              meta && meta.updateStrategy
-                ? meta.updateStrategy
-                : this.updateStrategy;
-
-            if (updateStrategy === BidirectionalBlocUpdateStrategy.merge) {
-              this.patchState(nextState);
-            } else {
-              this.setState(nextState);
-            }
-
-            if (this.delegateRespondsToMethod('blocDidProcessEvent')) {
-              // @ts-ignore -- `delegate` is safe here,
-              // thanks to`delegateRespondsToMethod`
-              this.delegate.blocDidProcessEvent(this, event, nextState);
-            }
-          })
-          .catch(this.handleError);
-      },
-    );
+          this.updateState(nextState, updateStrategy);
+          this.notifyDelegateBlocDidProcessEvent(event, nextState);
+        })
+        .catch(this.handleError);
+    });
   }
 
   public dispatchEvent(event: E) {
@@ -115,6 +78,33 @@ export abstract class BidirectionalBloc<
 
     this.eventController!.complete();
     this.eventSubscription!.unsubscribe();
+  }
+
+  protected updateState(
+    nextState: S,
+    updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy,
+  ) {
+    if (updateStrategy === BidirectionalBlocUpdateStrategy.merge) {
+      this.patchState(nextState);
+    } else {
+      this.setState(nextState);
+    }
+  }
+
+  protected notifyDelegateBlocDidProcessEvent(event: E, nextState: S) {
+    if (this.delegateRespondsToMethod('blocDidProcessEvent')) {
+      // @ts-ignore -- `delegate` is safe here,
+      // thanks to`delegateRespondsToMethod`
+      this.delegate.blocDidProcessEvent(this, event, nextState);
+    }
+  }
+
+  protected notifyDelegateBlocWillProcessEvent(event: E, currentState: S) {
+    if (this.delegateRespondsToMethod('blocWillProcessEvent')) {
+      // @ts-ignore -- `delegate` is safe here,
+      // thanks to`delegateRespondsToMethod`
+      this.delegate.blocWillProcessEvent(this, event, currentState);
+    }
   }
 
   protected delegateRespondsToMethod(name: keyof D): boolean {

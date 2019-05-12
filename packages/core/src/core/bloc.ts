@@ -66,37 +66,12 @@ export abstract class Bloc<
     return delegate && typeof delegate[name] === 'function';
   }
 
-  protected setState(candidateState: S) {
+  protected setState(nextState: S) {
     const currentState = this.currentState;
-    let responseFromDelegate: any;
 
-    if (this.delegateRespondsToMethod('blocStateWillChange')) {
-      try {
-        // @ts-ignore -- `delegate` is safe here,
-        // thanks to`delegateRespondsToMethod`
-        responseFromDelegate = this.delegate.blocStateWillChange(this, {
-          currentState,
-          nextState: candidateState,
-        });
-      } catch (error) {
-        responseFromDelegate = Promise.reject(error);
-      }
-    }
+    this.notifyDelegateBlocStateWillChange(currentState, nextState);
 
-    const nextState = responseFromDelegate || candidateState;
-    let promise: Promise<S>;
-
-    if (nextState instanceof Promise) {
-      promise = nextState;
-    } else if (nextState instanceof Observable) {
-      promise = nextState.pipe(take(1)).toPromise();
-    } else if (nextState instanceof Error) {
-      promise = Promise.reject(nextState);
-    } else {
-      promise = Promise.resolve(nextState);
-    }
-
-    promise
+    this.promisifyState(nextState)
       .then(finalState => {
         this.dispatchState(finalState);
 
@@ -110,6 +85,36 @@ export abstract class Bloc<
         }
       })
       .catch(this.handleError);
+  }
+
+  protected promisifyState(nextState: any): Promise<S> {
+    let promise: Promise<S>;
+
+    if (nextState instanceof Promise) {
+      promise = nextState;
+    } else if (nextState instanceof Error) {
+      promise = Promise.reject(nextState);
+    } else if (nextState instanceof Observable) {
+      promise = nextState.pipe(take(1)).toPromise();
+    } else {
+      promise = Promise.resolve(nextState || this.currentState);
+    }
+
+    return promise;
+  }
+
+  protected notifyDelegateBlocStateWillChange(
+    currentState: S,
+    candidateState: S,
+  ) {
+    if (this.delegateRespondsToMethod('blocStateWillChange')) {
+      // @ts-ignore -- `delegate` is safe here,
+      // thanks to`delegateRespondsToMethod`
+      this.delegate.blocStateWillChange(this, {
+        currentState,
+        nextState: candidateState,
+      });
+    }
   }
 
   protected patchState = (candidateState: S) => {

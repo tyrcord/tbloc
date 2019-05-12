@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import { BidirectionalBloc } from '../core/bidirectional.bloc';
 import {
   BidirectionalBlocTransitionEnd,
@@ -13,7 +12,7 @@ export type BidirectionalBlocDelegate<
   blocStateWillChange?: (
     bloc: BidirectionalBloc<E, S>,
     bidirectionalBlocTransition: BidirectionalBlocTransitionStart<E, S>,
-  ) => S | Observable<S> | Promise<S> | void | null;
+  ) => void;
 
   blocStateDidChange?: (
     bloc: BidirectionalBloc<E, S>,
@@ -24,7 +23,7 @@ export type BidirectionalBlocDelegate<
     bloc: BidirectionalBloc<E, S>,
     event: E,
     state: S,
-  ) => void | E;
+  ) => void;
 
   blocDidProcessEvent?: (
     bloc: BidirectionalBloc<E, S>,

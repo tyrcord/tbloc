@@ -2,21 +2,8 @@ import {
   BidirectionalBloc,
   BidirectionalBlocUpdateStrategy,
 } from '../../src/core/bidirectional.bloc';
-import { UnidirectionalBloc } from '../../src/core/unidirectional.bloc';
 import { PeopleBlocEvent } from './people-bloc-event.mock';
 import { PeopleBlocState } from './people-bloc-state.mock';
-
-export class UnidirectionalPeopleBloc extends UnidirectionalBloc<
-  PeopleBlocState
-> {
-  public put(state: PeopleBlocState) {
-    this.setState(state);
-  }
-
-  public patch(state: PeopleBlocState) {
-    this.patchState(state);
-  }
-}
 
 export class BidirectionalPeopleBloc extends BidirectionalBloc<
   PeopleBlocEvent,
