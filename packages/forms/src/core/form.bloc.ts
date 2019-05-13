@@ -27,7 +27,7 @@ export abstract class FormBloc<
 
   public dispose(): void {
     super.dispose();
-    this.modelController!.complete();
+    this.modelController.complete();
   }
 
   protected delegateRespondsToMethod(
@@ -61,9 +61,7 @@ export abstract class FormBloc<
       this.modelController.next(model);
 
       if (this.delegateRespondsToMethod('blocDidValidateModel')) {
-        // @ts-ignore -- `delegate` is safe here,
-        // thanks to`delegateRespondsToMethod`
-        delegateEvent = this.delegate.blocDidValidateModel(this, event, model);
+        this.delegate.blocDidValidateModel(this, event, model);
       }
     }
 

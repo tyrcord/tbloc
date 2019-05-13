@@ -10,6 +10,13 @@ export enum BidirectionalBlocUpdateStrategy {
   replace = 'replace',
 }
 
+export type MappedEventToStateTypes<S> =
+  | S
+  | Observable<S>
+  | Promise<S>
+  | void
+  | null;
+
 export abstract class BidirectionalBloc<
   E extends BlocEvent,
   S extends object = {},
@@ -30,7 +37,7 @@ export abstract class BidirectionalBloc<
 
     this.eventSubscription = this.eventController.subscribe((event: E) => {
       const currentState = this.currentState;
-      let mappedState: S | Observable<S> | Promise<S> | void | null;
+      let mappedState: MappedEventToStateTypes<S>;
 
       this.notifyDelegateBlocWillProcessEvent(event, currentState);
 
@@ -75,9 +82,8 @@ export abstract class BidirectionalBloc<
 
   public dispose(): void {
     super.dispose();
-
-    this.eventController!.complete();
-    this.eventSubscription!.unsubscribe();
+    this.eventController.complete();
+    this.eventSubscription.unsubscribe();
   }
 
   protected updateState(
@@ -121,7 +127,7 @@ export abstract class BidirectionalBloc<
   protected abstract mapEventToState(
     event: E,
     currentState: S,
-  ): S | Observable<S> | Promise<S> | void | null;
+  ): MappedEventToStateTypes<S>;
 
   protected eventFactory?(): E;
 }

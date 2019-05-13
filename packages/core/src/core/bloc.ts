@@ -46,7 +46,7 @@ export abstract class Bloc<
   }
 
   public dispose(): void {
-    this.stateController!.complete();
+    this.stateController.complete();
   }
 
   protected dispatchState(state: S) {
