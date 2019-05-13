@@ -9,11 +9,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lerna run lint && lerna run coverage"
+      "pre-commit": "lerna run lint",
+      "pre-push": "lerna run test"
     }
   },
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "coverage": "lerna run coverage"
   }
 }
