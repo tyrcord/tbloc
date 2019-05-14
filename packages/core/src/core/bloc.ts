@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { UnidirectionalBlocDelegate } from 'src/types/unidirectional-bloc-delegate.type';
+import { UnidirectionalBlocDelegate } from '../types/unidirectional-bloc-delegate.type';
 import { BlocStateBuilder, IBlocStateBuilder } from './bloc-state.builder';
 
 export type BlocStateBuilderFunc<S extends object> = () => S;
