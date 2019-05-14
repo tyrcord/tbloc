@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import { skip, take } from 'rxjs/operators';
 import * as Sinon from 'sinon';
+import { ValidationError } from 'yup';
 
 import { ContactFormBlocStateBuilder } from '../../src/contact/contact-form-bloc-state.builder';
 import { ContactFormBlocModel } from '../../src/contact/contact-form-bloc.model';
@@ -10,6 +11,7 @@ import { ContactFormBlocState } from '../../src/contact/contact-form-bloc.state'
 import { ContactFormBloc } from '../../src/contact/contact-form.bloc';
 import { MockContactFormBlocDelegate } from '../mocks/contact-form-bloc.delegate';
 
+// tslint:disable-next-line: no-big-function
 describe('ContactFormBloc', () => {
   const stateBuilder = new ContactFormBlocStateBuilder();
 
@@ -41,8 +43,13 @@ describe('ContactFormBloc', () => {
       validState.fields.subject.value = 'hello';
       bloc = new ContactFormBloc(validState);
 
-      bloc.stream.pipe(take(1)).subscribe(({ fields: { subject } }) => {
+      bloc.stream.pipe(take(1)).subscribe(state => {
+        const {
+          fields: { subject },
+        } = state;
+
         expect(subject.value).to.equal('hello');
+        expect(state.valid).to.equal(true);
         done();
       });
     });
@@ -287,6 +294,31 @@ describe('ContactFormBloc', () => {
       }, 0); // wait for the next tick
 
       bloc.onMessageChange('message');
+    });
+  });
+
+  describe('#schemaValidator', () => {
+    it('should valid a model when all requirements are fulfilled', done => {
+      bloc.schemaValidator.validate(contactModel).then(model => {
+        expect(model.subject).to.equal(void 0);
+        done();
+      });
+    });
+
+    it('should invalid a model when some requirements are not fulfilled', done => {
+      bloc = new ContactFormBloc(
+        void 0,
+        ContactFormBlocSchema.defaultWithRequiredSubject(),
+      );
+
+      bloc.schemaValidator
+        .validate(contactModel)
+        .catch((validationError: ValidationError) => {
+          expect(validationError.errors.length).to.equal(1);
+          expect(validationError.inner.length).to.equal(0);
+          expect(validationError.path).to.equal('subject');
+          done();
+        });
     });
   });
 });

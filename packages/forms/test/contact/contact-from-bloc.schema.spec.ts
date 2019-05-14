@@ -5,6 +5,8 @@ import { ObjectSchema, ValidationError } from 'yup';
 import { ContactFormBlocModel } from '../../src/contact/contact-form-bloc.model';
 import { ContactFormBlocSchema } from '../../src/contact/contact-form-bloc.schema';
 
+const SHOULD_HAVE_DEFAULT_VALUE = 'should have a default value';
+
 describe('ContactFormBlocSchema', () => {
   let schema: ObjectSchema<ContactFormBlocModel>;
   let contactModel: ContactFormBlocModel;
@@ -25,14 +27,14 @@ describe('ContactFormBlocSchema', () => {
   });
 
   describe('#DefaultNameLength', () => {
-    it('should have a default value', () => {
+    it(SHOULD_HAVE_DEFAULT_VALUE, () => {
       expect(typeof ContactFormBlocSchema.DefaultNameLength).to.equal('number');
       expect(ContactFormBlocSchema.DefaultNameLength).to.equal(256);
     });
   });
 
   describe('#DefaultSubjectLength', () => {
-    it('should have a default value', () => {
+    it(SHOULD_HAVE_DEFAULT_VALUE, () => {
       expect(typeof ContactFormBlocSchema.DefaultSubjectLength).to.equal(
         'number',
       );
@@ -41,7 +43,7 @@ describe('ContactFormBlocSchema', () => {
   });
 
   describe('#DefaultMessageLength', () => {
-    it('should have a default value', () => {
+    it(SHOULD_HAVE_DEFAULT_VALUE, () => {
       expect(typeof ContactFormBlocSchema.DefaultMessageLength).to.equal(
         'number',
       );
