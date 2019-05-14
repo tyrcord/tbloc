@@ -27,9 +27,10 @@ export abstract class ContactFormBlocSchema {
     subjectLength = defaultMaxSubjectLength,
   ) {
     return this.buildShape(
-      string().max(subjectLength),
+      string().notRequired(),
       nameLength,
       messageLength,
+      subjectLength,
     );
   }
 
@@ -39,11 +40,10 @@ export abstract class ContactFormBlocSchema {
     subjectLength = defaultMaxSubjectLength,
   ) {
     return this.buildShape(
-      string()
-        .required()
-        .max(subjectLength),
+      string().required(),
       nameLength,
       messageLength,
+      subjectLength,
     );
   }
 
@@ -51,16 +51,19 @@ export abstract class ContactFormBlocSchema {
     subject: StringSchema,
     nameLength: number,
     messageLength: number,
+    subjectLength: number,
   ) {
     return object<ContactFormBlocModel>().shape({
-      email: string().email(),
+      email: string()
+        .required()
+        .email(),
       message: string()
-        .max(messageLength)
-        .required(),
+        .required()
+        .max(messageLength),
       name: string()
         .required()
         .max(nameLength),
-      subject,
+      subject: subject.max(subjectLength),
     });
   }
 }

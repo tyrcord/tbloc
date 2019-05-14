@@ -12,7 +12,7 @@ export class FormBlocStateBuilder<S extends FormBlocState>
     } as S;
   }
 
-  public buildFormFieldState<U>(value: any, required: boolean = false) {
+  public buildFormFieldState<U>(value?: U, required: boolean = false) {
     return {
       disabled: false,
       errors: [],
@@ -23,16 +23,20 @@ export class FormBlocStateBuilder<S extends FormBlocState>
   }
 
   public addErrorsToState(state: S, errors?: ValidationError[]) {
-    state.valid = !!errors;
-
     if (errors) {
-      for (const error of errors) {
+      for (const [index, error] of errors.entries()) {
         const path = error.path;
         const fieldState: FormFieldState = state.fields[path];
 
-        fieldState.errors.push(error);
-        fieldState.valid = false;
+        if (fieldState) {
+          fieldState.errors.push(error);
+          fieldState.valid = false;
+        } else {
+          errors.splice(index, 1);
+        }
       }
     }
+
+    state.valid = !(errors && errors.length > 0);
   }
 }

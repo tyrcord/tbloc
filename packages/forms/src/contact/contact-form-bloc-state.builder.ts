@@ -11,10 +11,10 @@ export class ContactFormBlocStateBuilder
     const state = super.buildDefault();
 
     state.fields = {
-      email: this.buildFormFieldState<string>(null, true),
-      message: this.buildFormFieldState<string>(null, true),
-      name: this.buildFormFieldState<string>(null, true),
-      subject: this.buildFormFieldState<string>(null),
+      email: this.buildFormFieldState<string>(void 0, true),
+      message: this.buildFormFieldState<string>(void 0, true),
+      name: this.buildFormFieldState<string>(void 0, true),
+      subject: this.buildFormFieldState<string>(void 0),
     };
 
     return state;
