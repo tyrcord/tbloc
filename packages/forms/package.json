@@ -19,17 +19,19 @@
     "build": "rm -rf ./dist && tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
-    "prepare": "npm run build",
+    "prepare": "npm run snyk-protect; npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "test": "NODE_ENV=test mocha",
-    "coverage": "nyc npm run test"
+    "coverage": "nyc npm run test",
+    "snyk-protect": "snyk protect"
   },
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "dependencies": {
     "@tbloc/core": "^0.4.1",
     "rxjs": "6.5.2",
-    "yup": "0.27.0"
+    "yup": "0.27.0",
+    "snyk": "^1.192.3"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
@@ -49,5 +51,6 @@
     "tslint-config-prettier": "1.18.0",
     "tslint-sonarts": "1.9.0",
     "typescript": "3.4.5"
-  }
+  },
+  "snyk": true
 }
