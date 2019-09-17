@@ -28,7 +28,7 @@
   "types": "dist/types/index.d.ts",
   "dependencies": {
     "@tbloc/core": "^0.4.1",
-    "rxjs": "6.5.2",
+    "rxjs": "6.5.3",
     "yup": "0.27.0"
   },
   "devDependencies": {
