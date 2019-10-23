@@ -30,7 +30,7 @@
     "rxjs": "6.5.3"
   },
   "devDependencies": {
-    "@types/chai": "4.2.3",
+    "@types/chai": "4.2.4",
     "@types/mocha": "5.2.7",
     "@types/node": "12.11.2",
     "@types/sinon": "7.5.0",
