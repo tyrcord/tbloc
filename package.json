@@ -5,7 +5,7 @@
   "private": true,
   "devDependencies": {
     "husky": "3.1.0",
-    "lerna": "3.18.4"
+    "lerna": "3.18.5"
   },
   "husky": {
     "hooks": {
