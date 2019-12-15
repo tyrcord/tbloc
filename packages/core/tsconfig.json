@@ -10,10 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "preserveConstEnums": true,
     "importHelpers": true,
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["es6", "dom"],
     "module": "commonjs",
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -24,15 +21,11 @@
     "removeComments": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "es5"
+    "target": "es5",
+    "esModuleInterop": true
   },
-  "exclude": [
-    "**/*.spec.ts",
-    "node_modules"
-  ],
-  "include": [
-    "src/**/*"
-  ]
+  "exclude": ["**/*.spec.ts", "node_modules"],
+  "include": ["src/**/*"]
 }

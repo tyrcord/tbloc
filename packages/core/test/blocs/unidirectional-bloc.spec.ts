@@ -2,14 +2,16 @@ import { expect } from 'chai';
 import 'mocha';
 import { Observable } from 'rxjs';
 import { delay, skipWhile, take } from 'rxjs/operators';
-import * as Sinon from 'sinon';
-import {
-  UnidirectionalBlocTransitionEnd,
-  UnidirectionalBlocTransitionStart,
-} from '../../src/types/unidirectional-bloc-transition.type';
-import { UnidirectionalPeopleBlocDelegate } from '../mocks/unidirectional-people-bloc-delegate.mock';
+import Sinon from 'sinon';
+
 import { PeopleBlocState } from '../mocks/people-bloc-state.mock';
+import { UnidirectionalPeopleBlocDelegate } from '../mocks/unidirectional-people-bloc-delegate.mock';
 import { UnidirectionalPeopleBloc } from '../mocks/unidirectional-people-bloc.mock';
+
+import {
+  IUnidirectionalBlocTransitionEnd,
+  IUnidirectionalBlocTransitionStart,
+} from '../../src/types';
 
 describe('UnidirectionalBloc', () => {
   let bloc: UnidirectionalPeopleBloc;
@@ -125,7 +127,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: UnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -154,7 +156,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: UnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;
@@ -218,7 +220,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: UnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -247,7 +249,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: UnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;

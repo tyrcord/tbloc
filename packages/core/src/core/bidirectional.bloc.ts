@@ -1,43 +1,26 @@
 import { Observable, Subject, Subscription } from 'rxjs';
 
-import { BidirectionalBlocDelegate } from '../types/bidirectional-bloc-delegate.type';
-import { BlocEvent } from '../types/bloc-event.type';
-import { Bloc, BlocStateBuilderFunc } from './bloc';
-import { IBlocStateBuilder } from './bloc-state.builder';
+import { BidirectionalBlocUpdateStrategy } from '../enums';
+import { Bloc } from './bloc';
 
-export enum BidirectionalBlocUpdateStrategy {
-  merge = 'merge',
-  replace = 'replace',
-}
-
-export type MappedEventToStateTypes<S> =
-  | S
-  | Observable<S>
-  | Promise<S>
-  | void
-  | null;
+import { IBlocEvent } from '../interfaces';
+import { BlocStateBuilderType, IBidirectionalBlocDelegate } from '../types';
 
 export abstract class BidirectionalBloc<
-  E extends BlocEvent,
+  E extends IBlocEvent,
   S extends object = {},
-  D extends BidirectionalBlocDelegate<E, S> = {}
+  D extends IBidirectionalBlocDelegate<E, S> = {}
 > extends Bloc<S, D> {
-  protected updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy =
-    BidirectionalBlocUpdateStrategy.merge;
-
-  protected eventController: Subject<E> = new Subject<E>();
-
+  protected updateStrategy = BidirectionalBlocUpdateStrategy.merge;
+  protected eventController = new Subject<E>();
   protected eventSubscription: Subscription;
 
-  constructor(
-    initialState?: S,
-    builder?: IBlocStateBuilder<S> | BlocStateBuilderFunc<S>,
-  ) {
+  constructor(initialState?: S, builder?: BlocStateBuilderType<S>) {
     super(initialState, builder);
 
     this.eventSubscription = this.eventController.subscribe((event: E) => {
+      let mappedState: Observable<S> | Promise<S> | S;
       const currentState = this.currentState;
-      let mappedState: MappedEventToStateTypes<S>;
 
       this.notifyDelegateBlocWillProcessEvent(event, currentState);
 
@@ -62,22 +45,8 @@ export abstract class BidirectionalBloc<
     });
   }
 
-  public dispatchEvent(event: E) {
+  public dispatchEvent(event: E): void {
     this.eventController.next(event);
-  }
-
-  public dispatchPayload(payload: any) {
-    if (typeof this.eventFactory === 'function') {
-      const event = this.eventFactory();
-      event.payload = payload;
-
-      this.dispatchEvent(event);
-    } else {
-      throw new Error(
-        `the class "${this.constructor.name}" must implements the  method
-        "eventFactory" in order to use the method dispatchPayload`,
-      );
-    }
   }
 
   public dispose(): void {
@@ -88,8 +57,8 @@ export abstract class BidirectionalBloc<
 
   protected updateState(
     nextState: S,
-    updateStrategy: keyof typeof BidirectionalBlocUpdateStrategy,
-  ) {
+    updateStrategy: BidirectionalBlocUpdateStrategy,
+  ): void {
     if (updateStrategy === BidirectionalBlocUpdateStrategy.merge) {
       this.patchState(nextState);
     } else {
@@ -97,7 +66,7 @@ export abstract class BidirectionalBloc<
     }
   }
 
-  protected notifyDelegateBlocDidProcessEvent(event: E, nextState: S) {
+  protected notifyDelegateBlocDidProcessEvent(event: E, nextState: S): void {
     if (this.delegateRespondsToMethod('blocDidProcessEvent')) {
       // @ts-ignore -- `delegate` is safe here,
       // thanks to`delegateRespondsToMethod`
@@ -105,7 +74,10 @@ export abstract class BidirectionalBloc<
     }
   }
 
-  protected notifyDelegateBlocWillProcessEvent(event: E, currentState: S) {
+  protected notifyDelegateBlocWillProcessEvent(
+    event: E,
+    currentState: S,
+  ): void {
     if (this.delegateRespondsToMethod('blocWillProcessEvent')) {
       // @ts-ignore -- `delegate` is safe here,
       // thanks to`delegateRespondsToMethod`
@@ -127,7 +99,5 @@ export abstract class BidirectionalBloc<
   protected abstract mapEventToState(
     event: E,
     currentState: S,
-  ): MappedEventToStateTypes<S>;
-
-  protected eventFactory?(): E;
+  ): Observable<S> | Promise<S> | S;
 }

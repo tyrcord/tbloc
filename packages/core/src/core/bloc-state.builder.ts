@@ -1,6 +1,4 @@
-export interface IBlocStateBuilder<S extends object = {}> {
-  buildDefault(): S;
-}
+import { IBlocStateBuilder } from '../interfaces';
 
 export class BlocStateBuilder<S extends object = {}>
   implements IBlocStateBuilder<S> {

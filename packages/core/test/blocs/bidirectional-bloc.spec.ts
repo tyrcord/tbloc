@@ -2,13 +2,15 @@ import { expect } from 'chai';
 import 'mocha';
 import { Observable, of, throwError } from 'rxjs';
 import { delay, skip, skipWhile, take } from 'rxjs/operators';
-import * as Sinon from 'sinon';
+import Sinon from 'sinon';
 
-import { BidirectionalBlocUpdateStrategy } from '../../src/core/bidirectional.bloc';
+import { BidirectionalBlocUpdateStrategy } from '../../src/enums';
+
 import {
-  UnidirectionalBlocTransitionEnd,
-  UnidirectionalBlocTransitionStart,
-} from '../../src/types/unidirectional-bloc-transition.type';
+  IUnidirectionalBlocTransitionEnd,
+  IUnidirectionalBlocTransitionStart,
+} from '../../src/types';
+
 import { BidirectionalPeopleBlocDelegate } from '../mocks/bidirectional-people-bloc-delegate.mock';
 import { BidirectionalPeopleBloc } from '../mocks/bidirectional-people-bloc.mock';
 import { PeopleBlocEvent } from '../mocks/people-bloc-event.mock';
@@ -37,18 +39,13 @@ describe('BidirectionalBloc', () => {
     it("should dispatch states when BLoC's states change", done => {
       let count = 0;
 
-      bloc.stream
-        .pipe(
-          skip(1),
-          take(2),
-        )
-        .subscribe(({ firstname }) => {
-          expect(firstname).to.equal(!count ? 'baz' : 'qux');
+      bloc.stream.pipe(skip(1), take(2)).subscribe(({ firstname }) => {
+        expect(firstname).to.equal(!count ? 'baz' : 'qux');
 
-          if (++count === 2) {
-            done();
-          }
-        });
+        if (++count === 2) {
+          done();
+        }
+      });
 
       bloc.patch({
         firstname: 'baz',
@@ -131,7 +128,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: UnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -160,7 +157,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: UnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;
@@ -224,7 +221,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: UnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -253,7 +250,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: UnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;

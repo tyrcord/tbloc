@@ -1,8 +1,8 @@
-import { UnidirectionalBlocDelegate } from '../../src/types/unidirectional-bloc-delegate.type';
+import { IUnidirectionalBlocDelegate } from '../../src/types';
 import { PeopleBlocState } from './people-bloc-state.mock';
 
 export class UnidirectionalPeopleBlocDelegate
-  implements UnidirectionalBlocDelegate<PeopleBlocState> {
+  implements IUnidirectionalBlocDelegate<PeopleBlocState> {
   public blocStateWillChange(): void {}
 
   public blocStateDidChange(): void {}

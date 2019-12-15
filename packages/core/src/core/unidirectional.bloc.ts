@@ -1,8 +1,8 @@
 import { Bloc } from './bloc';
 
-import { UnidirectionalBlocDelegate } from '../types/unidirectional-bloc-delegate.type';
+import { IUnidirectionalBlocDelegate } from '../interfaces/unidirectional-bloc-delegate.interface';
 
 export abstract class UnidirectionalBloc<S extends object = {}> extends Bloc<
   S,
-  UnidirectionalBlocDelegate
+  IUnidirectionalBlocDelegate
 > {}

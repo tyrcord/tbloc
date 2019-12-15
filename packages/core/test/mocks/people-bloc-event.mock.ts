@@ -1,4 +1,4 @@
-import { BlocEvent, BlocEventMetada } from '../../src/types/bloc-event.type';
+import { IBlocEvent, IBlocEventMetada } from '../../src/interfaces';
 
 export type PeopleBlocEventPayload = {
   firstname?: string;
@@ -6,14 +6,10 @@ export type PeopleBlocEventPayload = {
   age?: number;
 };
 
-export class PeopleBlocEvent implements BlocEvent<PeopleBlocEventPayload> {
+export class PeopleBlocEvent implements IBlocEvent<PeopleBlocEventPayload> {
   public static Type = 'PeopleBlocEvent';
-
   public error?: string | Error;
-
-  public meta?: BlocEventMetada;
-
+  public meta?: IBlocEventMetada;
   public payload: PeopleBlocEventPayload;
-
   public type: string = PeopleBlocEvent.Type;
 }

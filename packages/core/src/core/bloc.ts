@@ -1,23 +1,19 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { UnidirectionalBlocDelegate } from '../types/unidirectional-bloc-delegate.type';
-import { BlocStateBuilder, IBlocStateBuilder } from './bloc-state.builder';
-
-export type BlocStateBuilderFunc<S extends object> = () => S;
+import { BlocStateBuilderType, IUnidirectionalBlocDelegate } from '../types';
+import { BlocStateBuilder } from './bloc-state.builder';
 
 /**
  * Abstract class that
  */
 export abstract class Bloc<
   S extends object = {},
-  D extends UnidirectionalBlocDelegate = {}
+  D extends IUnidirectionalBlocDelegate = {}
 > {
   public delegate: D;
-
   protected stateController: BehaviorSubject<S>;
-
-  protected stateBuilder: IBlocStateBuilder<S> | BlocStateBuilderFunc<S>;
+  protected stateBuilder: BlocStateBuilderType<S>;
 
   public get currentState(): S {
     return this.stateController.getValue();
@@ -27,10 +23,7 @@ export abstract class Bloc<
     return this.stateController.asObservable();
   }
 
-  constructor(
-    initialState?: S,
-    builder?: IBlocStateBuilder<S> | BlocStateBuilderFunc<S>,
-  ) {
+  constructor(protected initialState?: S, builder?: BlocStateBuilderType<S>) {
     builder = builder ? builder : new BlocStateBuilder<S>();
 
     if (!initialState) {
@@ -49,10 +42,6 @@ export abstract class Bloc<
     this.stateController.complete();
   }
 
-  protected dispatchState(state: S) {
-    this.stateController.next(state);
-  }
-
   /**
    * Returns a boolean value that indicates whether a BloC's delegate implements
    * or inherits a method.
@@ -66,23 +55,22 @@ export abstract class Bloc<
     return delegate && typeof delegate[name] === 'function';
   }
 
-  protected setState(nextState: S) {
+  protected patchState = (candidateState: Partial<S>): void => {
+    this.setState({
+      ...this.currentState,
+      ...candidateState,
+    });
+  };
+
+  protected setState(nextState: S): void {
     const currentState = this.currentState;
 
     this.notifyDelegateBlocStateWillChange(currentState, nextState);
 
     this.promisifyState(nextState)
-      .then(finalState => {
+      .then((finalState: S) => {
         this.dispatchState(finalState);
-
-        if (this.delegateRespondsToMethod('blocStateDidChange')) {
-          // @ts-ignore -- `delegate` is safe here,
-          // thanks to`delegateRespondsToMethod`
-          this.delegate.blocStateDidChange(this, {
-            currentState: finalState,
-            previousState: currentState,
-          });
-        }
+        this.notifyDelegateBlocStateDidChange(finalState, currentState);
       })
       .catch(this.handleError);
   }
@@ -97,34 +85,43 @@ export abstract class Bloc<
     } else if (nextState instanceof Observable) {
       promise = nextState.pipe(take(1)).toPromise();
     } else {
-      promise = Promise.resolve(nextState || this.currentState);
+      promise = Promise.resolve(nextState ?? this.currentState);
     }
 
     return promise;
   }
 
+  protected dispatchState(state: S): void {
+    this.stateController.next(state);
+  }
+
   protected notifyDelegateBlocStateWillChange(
     currentState: S,
-    candidateState: S,
-  ) {
+    nextState: S,
+  ): void {
     if (this.delegateRespondsToMethod('blocStateWillChange')) {
       // @ts-ignore -- `delegate` is safe here,
       // thanks to`delegateRespondsToMethod`
       this.delegate.blocStateWillChange(this, {
         currentState,
-        nextState: candidateState,
+        nextState,
       });
     }
   }
 
-  protected patchState = (candidateState: S) => {
-    const currentState = this.currentState;
-
-    this.setState({
-      ...currentState,
-      ...candidateState,
-    });
-  };
+  protected notifyDelegateBlocStateDidChange(
+    currentState: S,
+    previousState: S,
+  ): void {
+    if (this.delegateRespondsToMethod('blocStateDidChange')) {
+      // @ts-ignore -- `delegate` is safe here,
+      // thanks to`delegateRespondsToMethod`
+      this.delegate.blocStateDidChange(this, {
+        currentState,
+        previousState,
+      });
+    }
+  }
 
   protected handleError = (error: Error) => {
     if (this.delegateRespondsToMethod('blocDidCatchError')) {
