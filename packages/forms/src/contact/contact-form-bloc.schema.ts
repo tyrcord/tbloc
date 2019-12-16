@@ -1,11 +1,9 @@
 import { object, string, StringSchema } from 'yup';
 
-import { ContactFormBlocModel } from './contact-form-bloc.model';
+import { IContactFormBlocModel } from './interfaces';
 
 const defaultMaxNameLength: number = 256;
-
 const defaultMaxSubjectLength: number = 256;
-
 const defaultMaxMessageLength: number = 2048;
 
 export abstract class ContactFormBlocSchema {
@@ -53,7 +51,7 @@ export abstract class ContactFormBlocSchema {
     messageLength: number,
     subjectLength: number,
   ) {
-    return object<ContactFormBlocModel>().shape({
+    return object<IContactFormBlocModel>().shape({
       email: string()
         .required()
         .email(),

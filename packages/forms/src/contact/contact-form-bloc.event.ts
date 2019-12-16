@@ -1,19 +1,14 @@
-import { BlocEvent } from '@tbloc/core';
+import { IBlocEvent } from '@tbloc/core';
 
-export type ContactFormBlocEventPayload = {
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-};
+import { IContactFormBlocEventPayload } from './interfaces';
 
 export class ContactFormBlocEvent
-  implements BlocEvent<ContactFormBlocEventPayload> {
+  implements IBlocEvent<IContactFormBlocEventPayload> {
   public static Type = 'ContactFormBlocEvent';
 
   public get type() {
     return ContactFormBlocEvent.Type;
   }
 
-  public payload: ContactFormBlocEventPayload;
+  constructor(public payload: IContactFormBlocEventPayload = {}) {}
 }

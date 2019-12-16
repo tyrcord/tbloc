@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { ContactFormBlocEvent } from '../../src/contact/contact-form-bloc.event';
+import { ContactFormBlocEvent } from '../../src/contact';
 
 describe('ContactFormBlocEvent', () => {
   let event: ContactFormBlocEvent;

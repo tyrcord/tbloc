@@ -1,13 +1,13 @@
 import { IBlocStateBuilder } from '@tbloc/core';
 
 import { FormBlocStateBuilder } from '../core/form-bloc-state.builder';
-import { ContactFormBlocModel } from './contact-form-bloc.model';
-import { ContactFormBlocState } from './contact-form-bloc.state';
+import { IContactFormBlocModel } from './interfaces/contact-form-bloc.model';
+import { IContactFormBlocState } from './interfaces/contact-form-bloc.state';
 
 export class ContactFormBlocStateBuilder
-  extends FormBlocStateBuilder<ContactFormBlocState>
-  implements IBlocStateBuilder<ContactFormBlocState> {
-  public buildDefault(): ContactFormBlocState {
+  extends FormBlocStateBuilder<IContactFormBlocState>
+  implements IBlocStateBuilder<IContactFormBlocState> {
+  public buildDefault(): IContactFormBlocState {
     const state = super.buildDefault();
 
     state.fields = {
@@ -21,9 +21,9 @@ export class ContactFormBlocStateBuilder
   }
 
   public buildFromModel(
-    model: ContactFormBlocModel,
+    model: IContactFormBlocModel,
     valid = false,
-  ): ContactFormBlocState {
+  ): IContactFormBlocState {
     const { email, message, name, subject } = model;
 
     return {

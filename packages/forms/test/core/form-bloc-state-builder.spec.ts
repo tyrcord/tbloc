@@ -2,11 +2,10 @@ import { expect } from 'chai';
 import 'mocha';
 import { ValidationError } from 'yup';
 
-import { FormBlocStateBuilder } from '../../src/core/form-bloc-state.builder';
-import { FormBlocState } from '../../src/core/form-bloc.state';
+import { FormBlocStateBuilder, IFormBlocState } from '../../src/core';
 
 describe('FormBlocStateBuilder', () => {
-  let builder: FormBlocStateBuilder<FormBlocState>;
+  let builder: FormBlocStateBuilder<IFormBlocState>;
 
   beforeEach(() => {
     builder = new FormBlocStateBuilder();

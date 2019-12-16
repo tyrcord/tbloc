@@ -2,15 +2,17 @@ import { expect } from 'chai';
 import 'mocha';
 import { ObjectSchema, ValidationError } from 'yup';
 
-import { ContactFormBlocModel } from '../../src/contact/contact-form-bloc.model';
-import { ContactFormBlocSchema } from '../../src/contact/contact-form-bloc.schema';
+import {
+  ContactFormBlocSchema,
+  IContactFormBlocModel,
+} from '../../src/contact';
 
 const SHOULD_HAVE_DEFAULT_VALUE = 'should have a default value';
 
 describe('ContactFormBlocSchema', () => {
-  let schema: ObjectSchema<ContactFormBlocModel>;
-  let contactModel: ContactFormBlocModel;
-  let contactModelWithSubject: ContactFormBlocModel;
+  let schema: ObjectSchema<IContactFormBlocModel>;
+  let contactModel: IContactFormBlocModel;
+  let contactModelWithSubject: IContactFormBlocModel;
 
   beforeEach(() => {
     schema = ContactFormBlocSchema.default();

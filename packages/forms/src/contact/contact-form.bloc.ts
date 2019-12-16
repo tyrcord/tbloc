@@ -3,58 +3,64 @@ import { ObjectSchema, ValidationError } from 'yup';
 import { FormBloc } from '../core/form.bloc';
 import { ContactFormBlocStateBuilder } from './contact-form-bloc-state.builder';
 import { ContactFormBlocEvent } from './contact-form-bloc.event';
-import { ContactFormBlocModel } from './contact-form-bloc.model';
 import { ContactFormBlocSchema } from './contact-form-bloc.schema';
-import { ContactFormBlocState } from './contact-form-bloc.state';
+
+import {
+  IContactFormBlocEventPayload,
+  IContactFormBlocModel,
+  IContactFormBlocState,
+} from './interfaces';
 
 export class ContactFormBloc extends FormBloc<
-  ContactFormBlocModel,
+  IContactFormBlocModel,
   ContactFormBlocEvent,
-  ContactFormBlocState
+  IContactFormBlocState
 > {
-  public schemaValidator: ObjectSchema<ContactFormBlocModel>;
+  public schemaValidator: ObjectSchema<IContactFormBlocModel>;
 
   protected stateBuilder: ContactFormBlocStateBuilder;
 
   constructor(
-    initialState?: ContactFormBlocState,
-    schemaValidator?: ObjectSchema<ContactFormBlocModel>,
+    initialState?: IContactFormBlocState,
+    schemaValidator?: ObjectSchema<IContactFormBlocModel>,
   ) {
     super(initialState, new ContactFormBlocStateBuilder());
     this.schemaValidator = schemaValidator || ContactFormBlocSchema.default();
   }
 
-  public onNameChange(name: string) {
+  public onNameChange(name: string): void {
     this.dispatchPayload({ name });
   }
 
-  public onEmailChange(email: string) {
+  public onEmailChange(email: string): void {
     this.dispatchPayload({ email });
   }
 
-  public onSubjectChange(subject: string) {
+  public onSubjectChange(subject: string): void {
     this.dispatchPayload({ subject });
   }
 
-  public onMessageChange(message: string) {
+  public onMessageChange(message: string): void {
     this.dispatchPayload({ message });
   }
 
-  protected eventFactory() {
-    return new ContactFormBlocEvent();
+  public dispatchPayload(payload: IContactFormBlocEventPayload): void {
+    this.dispatchEvent(new ContactFormBlocEvent(payload));
   }
 
   protected mapEventToModel(
     event: ContactFormBlocEvent,
-    currentModel: ContactFormBlocModel,
-  ) {
+    currentModel: IContactFormBlocModel,
+  ): IContactFormBlocModel {
     return {
       ...currentModel,
       ...event.payload,
     };
   }
 
-  protected mapStateToModel(state: ContactFormBlocState): ContactFormBlocModel {
+  protected mapStateToModel(
+    state: IContactFormBlocState,
+  ): IContactFormBlocModel {
     const { email, message, name, subject } = state.fields;
 
     return {
@@ -66,9 +72,9 @@ export class ContactFormBloc extends FormBloc<
   }
 
   protected mapModelToState(
-    model: ContactFormBlocModel,
+    model: IContactFormBlocModel,
     errors?: ValidationError[],
-  ): ContactFormBlocState {
+  ): IContactFormBlocState {
     const state = this.stateBuilder.buildFromModel(model);
     this.stateBuilder.addErrorsToState(state, errors);
     return state;

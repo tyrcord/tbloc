@@ -5,20 +5,23 @@ import * as Sinon from 'sinon';
 import { ValidationError } from 'yup';
 
 import { ContactFormBlocStateBuilder } from '../../src/contact/contact-form-bloc-state.builder';
-import { ContactFormBlocModel } from '../../src/contact/contact-form-bloc.model';
 import { ContactFormBlocSchema } from '../../src/contact/contact-form-bloc.schema';
-import { ContactFormBlocState } from '../../src/contact/contact-form-bloc.state';
 import { ContactFormBloc } from '../../src/contact/contact-form.bloc';
 import { MockContactFormBlocDelegate } from '../mocks/contact-form-bloc.delegate';
+
+import {
+  IContactFormBlocModel,
+  IContactFormBlocState,
+} from '../../src/contact';
 
 // tslint:disable-next-line: no-big-function
 describe('ContactFormBloc', () => {
   const stateBuilder = new ContactFormBlocStateBuilder();
 
   let bloc: ContactFormBloc;
-  let contactModel: ContactFormBlocModel;
+  let contactModel: IContactFormBlocModel;
   let blocDelegate: MockContactFormBlocDelegate;
-  let validState: ContactFormBlocState;
+  let validState: IContactFormBlocState;
 
   beforeEach(() => {
     bloc = new ContactFormBloc();
@@ -71,17 +74,12 @@ describe('ContactFormBloc', () => {
 
   describe('#onNameChange()', () => {
     it("should change the BloC's state when called", done => {
-      bloc.stream
-        .pipe(
-          skip(1),
-          take(1),
-        )
-        .subscribe(({ fields: { name } }) => {
-          expect(name.value).to.equal('foo');
-          expect(name.valid).to.equal(true);
-          expect(name.required).to.equal(true);
-          done();
-        });
+      bloc.stream.pipe(skip(1), take(1)).subscribe(({ fields: { name } }) => {
+        expect(name.value).to.equal('foo');
+        expect(name.valid).to.equal(true);
+        expect(name.required).to.equal(true);
+        done();
+      });
 
       bloc.onNameChange('foo');
     });
@@ -128,17 +126,12 @@ describe('ContactFormBloc', () => {
 
   describe('#onEmailChange()', () => {
     it('should dispatch a new state when the `email` value change', done => {
-      bloc.stream
-        .pipe(
-          skip(1),
-          take(1),
-        )
-        .subscribe(({ fields: { email } }) => {
-          expect(email.value).to.equal('qux@tyrcord.com');
-          expect(email.valid).to.equal(true);
-          expect(email.required).to.equal(true);
-          done();
-        });
+      bloc.stream.pipe(skip(1), take(1)).subscribe(({ fields: { email } }) => {
+        expect(email.value).to.equal('qux@tyrcord.com');
+        expect(email.valid).to.equal(true);
+        expect(email.required).to.equal(true);
+        done();
+      });
 
       bloc.onEmailChange('qux@tyrcord.com');
     });
@@ -186,10 +179,7 @@ describe('ContactFormBloc', () => {
   describe('#onSubjectChange()', () => {
     it('should dispatch a new state when the `subject` value change', done => {
       bloc.stream
-        .pipe(
-          skip(1),
-          take(1),
-        )
+        .pipe(skip(1), take(1))
         .subscribe(({ fields: { subject } }) => {
           expect(subject.value).to.equal('question');
           expect(subject.valid).to.equal(true);
@@ -243,10 +233,7 @@ describe('ContactFormBloc', () => {
   describe('#onMessageChange()', () => {
     it('should dispatch a new state when the `message` value change', done => {
       bloc.stream
-        .pipe(
-          skip(1),
-          take(1),
-        )
+        .pipe(skip(1), take(1))
         .subscribe(({ fields: { message } }) => {
           expect(message.value).to.equal('message');
           expect(message.valid).to.equal(true);

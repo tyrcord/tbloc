@@ -1,12 +1,14 @@
-import { ContactFormBlocDelegate } from '../../src/contact/contact-form-bloc.delegate';
-import { ContactFormBlocEvent } from '../../src/contact/contact-form-bloc.event';
-import { ContactFormBlocModel } from '../../src/contact/contact-form-bloc.model';
-import { ContactFormBloc } from '../../src/contact/contact-form.bloc';
+import {
+  ContactFormBloc,
+  ContactFormBlocEvent,
+  IContactFormBlocDelegate,
+  IContactFormBlocModel,
+} from '../../src/contact';
 
-export class MockContactFormBlocDelegate implements ContactFormBlocDelegate {
+export class MockContactFormBlocDelegate implements IContactFormBlocDelegate {
   public blocDidValidateModel(
     bloc: ContactFormBloc,
     event: ContactFormBlocEvent,
-    model: ContactFormBlocModel,
+    model: IContactFormBlocModel,
   ) {}
 }

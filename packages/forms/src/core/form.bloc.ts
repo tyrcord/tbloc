@@ -1,25 +1,23 @@
-import { BidirectionalBloc, BlocEvent } from '@tbloc/core';
+import { BidirectionalBloc, IBlocEvent } from '@tbloc/core';
 import { Observable, Subject } from 'rxjs';
 import { ObjectSchema, ValidationError } from 'yup';
 
 import { FormBlocStateBuilder } from './form-bloc-state.builder';
-import { FormBlocDelegate } from './form-bloc.delegate';
-import { FormBlocState } from './form-bloc.state';
+import { IFormBlocDelegate } from './interfaces/form-bloc-delegate.interface';
+import { IFormBlocState } from './interfaces/form-bloc-state.interface';
 
 export abstract class FormBloc<
   M extends object,
-  E extends BlocEvent,
-  S extends FormBlocState
-> extends BidirectionalBloc<E, S, FormBlocDelegate<M, E, S>> {
+  E extends IBlocEvent,
+  S extends IFormBlocState
+> extends BidirectionalBloc<E, S, IFormBlocDelegate<M, E, S>> {
   public schemaValidator: ObjectSchema<M>;
-
+  protected modelController: Subject<M> = new Subject<M>();
   protected stateBuilder: FormBlocStateBuilder<S>;
 
   public get modelStream(): Observable<M> {
     return this.modelController.asObservable();
   }
-
-  protected modelController: Subject<M> = new Subject<M>();
 
   constructor(initialState?: S, builder?: FormBlocStateBuilder<S>) {
     super(initialState, builder);
@@ -31,12 +29,12 @@ export abstract class FormBloc<
   }
 
   protected delegateRespondsToMethod(
-    name: keyof FormBlocDelegate<M, E, S>,
+    name: keyof IFormBlocDelegate<M, E, S>,
   ): boolean {
     return super.delegateRespondsToMethod(name);
   }
 
-  protected async mapEventToState(event: E, currentState: S) {
+  protected async mapEventToState(event: E, currentState: S): Promise<S> {
     const currentModel = this.mapStateToModel(currentState);
     const candidateModel = this.mapEventToModel(event, currentModel);
 
@@ -61,6 +59,7 @@ export abstract class FormBloc<
       this.modelController.next(model);
 
       if (this.delegateRespondsToMethod('blocDidValidateModel')) {
+        // @ts-ignore -- `delegate` is safe here
         this.delegate.blocDidValidateModel(this, event, model);
       }
     }
