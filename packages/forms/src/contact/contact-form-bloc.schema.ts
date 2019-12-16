@@ -25,7 +25,7 @@ export abstract class ContactFormBlocSchema {
     subjectLength = defaultMaxSubjectLength,
   ) {
     return this.buildShape(
-      string().notRequired(),
+      string().notRequired() as StringSchema<string>,
       nameLength,
       messageLength,
       subjectLength,
@@ -46,7 +46,7 @@ export abstract class ContactFormBlocSchema {
   }
 
   private static buildShape(
-    subject: StringSchema,
+    subject: StringSchema<string>,
     nameLength: number,
     messageLength: number,
     subjectLength: number,

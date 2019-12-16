@@ -17,7 +17,6 @@ export class ContactFormBloc extends FormBloc<
   IContactFormBlocState
 > {
   public schemaValidator: ObjectSchema<IContactFormBlocModel>;
-
   protected stateBuilder: ContactFormBlocStateBuilder;
 
   constructor(
