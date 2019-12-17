@@ -29,7 +29,7 @@
   "dependencies": {
     "@tbloc/core": "^0.4.1",
     "rxjs": "6.5.3",
-    "yup": "0.27.0"
+    "yup": "0.28.0"
   },
   "devDependencies": {
     "@types/chai": "4.2.7",
