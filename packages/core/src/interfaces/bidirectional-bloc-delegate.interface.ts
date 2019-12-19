@@ -1,25 +1,11 @@
-import { BidirectionalBloc } from '../core/bidirectional.bloc';
+import { BidirectionalBloc } from '../core';
+import { IBlocDelegate } from './bloc-delegate.interface';
 import { IBlocEvent } from './bloc-event.interface';
-
-import {
-  IBidirectionalBlocTransitionEnd,
-  IBidirectionalBlocTransitionStart,
-} from './bidirectional-bloc-transition.interface';
 
 export interface IBidirectionalBlocDelegate<
   E extends IBlocEvent,
   S extends object = {}
-> {
-  blocStateWillChange?: (
-    bloc: BidirectionalBloc<E, S>,
-    bidirectionalBlocTransition: IBidirectionalBlocTransitionStart<E, S>,
-  ) => void;
-
-  blocStateDidChange?: (
-    bloc: BidirectionalBloc<E, S>,
-    bidirectionalBlocTransition: IBidirectionalBlocTransitionEnd<E, S>,
-  ) => void;
-
+> extends IBlocDelegate<S> {
   blocWillProcessEvent?: (
     bloc: BidirectionalBloc<E, S>,
     event: E,
@@ -29,12 +15,6 @@ export interface IBidirectionalBlocDelegate<
   blocDidProcessEvent?: (
     bloc: BidirectionalBloc<E, S>,
     event: E,
-    state: S,
-  ) => void;
-
-  blocDidCatchError?: (
-    bloc: BidirectionalBloc<E, S>,
-    error: Error,
     state: S,
   ) => void;
 }

@@ -7,8 +7,8 @@ import { IContactFormBlocState } from './interfaces/contact-form-bloc.state';
 export class ContactFormBlocStateBuilder
   extends FormBlocStateBuilder<IContactFormBlocState>
   implements IBlocStateBuilder<IContactFormBlocState> {
-  public buildDefault(): IContactFormBlocState {
-    const state = super.buildDefault();
+  public buildDefaultState(): IContactFormBlocState {
+    const state = super.buildDefaultState();
 
     state.fields = {
       email: this.buildFormFieldState<string>(void 0, true),

@@ -1,10 +1,15 @@
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 import { BidirectionalBlocUpdateStrategy } from '../enums';
+import { BlocStateBuilder } from '../types';
 import { Bloc } from './bloc';
 
-import { IBlocEvent } from '../interfaces';
-import { BlocStateBuilderType, IBidirectionalBlocDelegate } from '../types';
+import {
+  IBidirectionalBlocDelegate,
+  IBlocEvent,
+  IBlocStateBuilder,
+} from '../interfaces';
 
 export abstract class BidirectionalBloc<
   E extends IBlocEvent,
@@ -13,12 +18,14 @@ export abstract class BidirectionalBloc<
 > extends Bloc<S, D> {
   protected updateStrategy = BidirectionalBlocUpdateStrategy.merge;
   protected eventController = new Subject<E>();
-  protected eventSubscription: Subscription;
 
-  constructor(initialState?: S, builder?: BlocStateBuilderType<S>) {
+  constructor(
+    initialState?: S,
+    builder?: BlocStateBuilder<S> | IBlocStateBuilder<S>,
+  ) {
     super(initialState, builder);
 
-    this.eventSubscription = this.eventController.subscribe((event: E) => {
+    this.eventController.subscribe((event: E) => {
       let mappedState: Observable<S> | Promise<S> | S;
       const currentState = this.currentState;
 
@@ -39,7 +46,7 @@ export abstract class BidirectionalBloc<
               : this.updateStrategy;
 
           this.updateState(nextState, updateStrategy);
-          this.notifyDelegateBlocDidProcessEvent(event, nextState);
+          this.notifyDelegateBlocDidProcessEvent(event, this.currentState);
         })
         .catch(this.handleError);
     });
@@ -50,9 +57,20 @@ export abstract class BidirectionalBloc<
   }
 
   public dispose(): void {
-    super.dispose();
     this.eventController.complete();
-    this.eventSubscription.unsubscribe();
+    super.dispose();
+  }
+
+  protected promisifyState(nextState: any): Promise<S> {
+    if (nextState instanceof Promise) {
+      return nextState;
+    } else if (nextState instanceof Error) {
+      return Promise.reject(nextState);
+    } else if (nextState instanceof Observable) {
+      return nextState.pipe(take(1)).toPromise();
+    }
+
+    return Promise.resolve(nextState ?? this.currentState);
   }
 
   protected updateState(
@@ -66,34 +84,24 @@ export abstract class BidirectionalBloc<
     }
   }
 
-  protected notifyDelegateBlocDidProcessEvent(event: E, nextState: S): void {
-    if (this.delegateRespondsToMethod('blocDidProcessEvent')) {
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      this.delegate.blocDidProcessEvent(this, event, nextState);
-    }
-  }
-
-  protected notifyDelegateBlocWillProcessEvent(
-    event: E,
-    currentState: S,
-  ): void {
+  protected notifyDelegateBlocWillProcessEvent(event: E, state: S): void {
     if (this.delegateRespondsToMethod('blocWillProcessEvent')) {
       // @ts-ignore -- `delegate` is safe here,
       // thanks to`delegateRespondsToMethod`
-      this.delegate.blocWillProcessEvent(this, event, currentState);
+      this.delegate.blocWillProcessEvent(this, event, state);
+    }
+  }
+
+  protected notifyDelegateBlocDidProcessEvent(event: E, state: S): void {
+    if (this.delegateRespondsToMethod('blocDidProcessEvent')) {
+      // @ts-ignore -- `delegate` is safe here,
+      // thanks to`delegateRespondsToMethod`
+      this.delegate.blocDidProcessEvent(this, event, state);
     }
   }
 
   protected delegateRespondsToMethod(name: keyof D): boolean {
     return super.delegateRespondsToMethod(name);
-  }
-
-  protected noSupportForEvent(event: E): never {
-    throw new Error(
-      `bloc ${this.constructor.name} doesn't support bloc event type:
-      ${event.type}`,
-    );
   }
 
   protected abstract mapEventToState(

@@ -11,9 +11,9 @@ describe('FormBlocStateBuilder', () => {
     builder = new FormBlocStateBuilder();
   });
 
-  describe('#buildDefault()', () => {
+  describe('#buildDefaultState()', () => {
     it('should returns a basic form state', () => {
-      const formState = builder.buildDefault();
+      const formState = builder.buildDefaultState();
 
       expect(typeof formState.fields).to.equal('object');
       expect(typeof formState.valid).to.equal('boolean');
@@ -49,13 +49,13 @@ describe('FormBlocStateBuilder', () => {
 
   describe('#addErrorsToState()', () => {
     it('should valid a form state when there are no errors', () => {
-      const formState = builder.buildDefault();
+      const formState = builder.buildDefaultState();
       builder.addErrorsToState(formState);
       expect(formState.valid).to.equal(true);
     });
 
     it('should valid a form state when errors are not related to this state', () => {
-      const formState = builder.buildDefault();
+      const formState = builder.buildDefaultState();
 
       builder.addErrorsToState(formState, [
         new ValidationError('error', formState, 'foo'),
@@ -65,7 +65,7 @@ describe('FormBlocStateBuilder', () => {
     });
 
     it('should invalid a form state when there are errors', () => {
-      const formState = builder.buildDefault();
+      const formState = builder.buildDefaultState();
       formState.fields.foo = builder.buildFormFieldState<string>('foo');
 
       builder.addErrorsToState(formState, [

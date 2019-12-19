@@ -6,15 +6,15 @@ import Sinon from 'sinon';
 
 import { BidirectionalBlocUpdateStrategy } from '../../src/enums';
 
-import {
-  IUnidirectionalBlocTransitionEnd,
-  IUnidirectionalBlocTransitionStart,
-} from '../../src/types';
-
 import { BidirectionalPeopleBlocDelegate } from '../mocks/bidirectional-people-bloc-delegate.mock';
 import { BidirectionalPeopleBloc } from '../mocks/bidirectional-people-bloc.mock';
 import { PeopleBlocEvent } from '../mocks/people-bloc-event.mock';
 import { PeopleBlocState } from '../mocks/people-bloc-state.mock';
+
+import {
+  IBlocStateTransitionEnd,
+  IBlocStateTransitionStart,
+} from '../../src/interfaces';
 
 describe('BidirectionalBloc', () => {
   let bloc: BidirectionalPeopleBloc;
@@ -128,7 +128,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IBlocStateTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -157,7 +157,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IBlocStateTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;
@@ -221,7 +221,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IBlocStateTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -250,7 +250,7 @@ describe('BidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IBlocStateTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;
@@ -430,8 +430,9 @@ describe('BidirectionalBloc', () => {
     it('should call the delegate method `blocDidProcessEvent` when a delegate respond to it', done => {
       bloc.stream
         .pipe(
-          skipWhile(state => state.firstname !== 'baz'),
+          skipWhile(({ firstname }) => firstname !== 'baz'),
           take(1),
+          delay(100),
         )
         .subscribe(() => {
           expect(spyOnBlocDidProcessEvent.called).to.equal(true);

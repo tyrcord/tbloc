@@ -9,9 +9,9 @@ import { UnidirectionalPeopleBlocDelegate } from '../mocks/unidirectional-people
 import { UnidirectionalPeopleBloc } from '../mocks/unidirectional-people-bloc.mock';
 
 import {
-  IUnidirectionalBlocTransitionEnd,
-  IUnidirectionalBlocTransitionStart,
-} from '../../src/types';
+  IBlocStateTransitionEnd,
+  IBlocStateTransitionStart,
+} from '../../src/interfaces';
 
 describe('UnidirectionalBloc', () => {
   let bloc: UnidirectionalPeopleBloc;
@@ -127,7 +127,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IBlocStateTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -156,7 +156,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IBlocStateTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;
@@ -220,7 +220,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateWillChange.called).to.equal(true);
 
           const lastCall = spyOnStateWillChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionStart<PeopleBlocState> =
+          const transition: IBlocStateTransitionStart<PeopleBlocState> =
             lastCall.args[1];
           const currentState = transition.currentState;
           const transitionNextState = transition.nextState;
@@ -249,7 +249,7 @@ describe('UnidirectionalBloc', () => {
           expect(spyOnStateDidChange.called).to.equal(true);
 
           const lastCall = spyOnStateDidChange.lastCall;
-          const transition: IUnidirectionalBlocTransitionEnd<PeopleBlocState> =
+          const transition: IBlocStateTransitionEnd<PeopleBlocState> =
             lastCall.args[1];
 
           const currentState = transition.currentState;

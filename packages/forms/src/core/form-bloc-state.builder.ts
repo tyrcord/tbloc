@@ -8,7 +8,7 @@ import {
 
 export class FormBlocStateBuilder<S extends IFormBlocState>
   implements IBlocStateBuilder<S> {
-  public buildDefault(): S {
+  public buildDefaultState(): S {
     return {
       fields: {},
       valid: false,

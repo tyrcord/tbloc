@@ -1,19 +1,23 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
 
-import { BlocStateBuilderType, IUnidirectionalBlocDelegate } from '../types';
-import { BlocStateBuilder } from './bloc-state.builder';
+import { IBlocDelegate, IBlocStateBuilder } from '../interfaces';
+import { BlocStateBuilder } from '../types';
+
+function blocStateBuilder<S>(): S {
+  return {} as S;
+}
 
 /**
  * Abstract class that
  */
 export abstract class Bloc<
   S extends object = {},
-  D extends IUnidirectionalBlocDelegate = {}
+  D extends IBlocDelegate = {}
 > {
   public delegate: D;
   protected stateController: BehaviorSubject<S>;
-  protected stateBuilder: BlocStateBuilderType<S>;
+
+  protected buildDefaultState?: () => S;
 
   public get currentState(): S {
     return this.stateController.getValue();
@@ -23,23 +27,36 @@ export abstract class Bloc<
     return this.stateController.asObservable();
   }
 
-  constructor(protected initialState?: S, builder?: BlocStateBuilderType<S>) {
-    builder = builder ? builder : new BlocStateBuilder<S>();
+  constructor(
+    protected initialState?: S,
+    protected stateBuilder?: BlocStateBuilder<S> | IBlocStateBuilder<S>,
+  ) {
+    this.stateController = new BehaviorSubject<S>(this.getInitialState());
+  }
 
-    if (!initialState) {
-      if (typeof builder === 'function') {
-        initialState = builder();
-      } else {
-        initialState = builder.buildDefault();
-      }
-    }
-
-    this.stateBuilder = builder;
-    this.stateController = new BehaviorSubject<S>(initialState);
+  public reset(): void {
+    this.setState(this.getInitialState());
   }
 
   public dispose(): void {
     this.stateController.complete();
+  }
+
+  protected getInitialState(): S {
+    if (!this.initialState) {
+      if (this.stateBuilder) {
+        if (typeof this.stateBuilder === 'function') {
+          return this.stateBuilder();
+        }
+        return this.stateBuilder.buildDefaultState();
+      } else if (typeof this.buildDefaultState === 'function') {
+        return this.buildDefaultState();
+      }
+
+      return blocStateBuilder();
+    }
+
+    return this.initialState;
   }
 
   /**
@@ -62,33 +79,16 @@ export abstract class Bloc<
     });
   };
 
-  protected setState(nextState: S): void {
+  protected setState(candidateState: S): void {
     const currentState = this.currentState;
+    let nextState = this.notifyDelegateBlocStateWillChange(
+      currentState,
+      candidateState,
+    );
 
-    this.notifyDelegateBlocStateWillChange(currentState, nextState);
-
-    this.promisifyState(nextState)
-      .then((finalState: S) => {
-        this.dispatchState(finalState);
-        this.notifyDelegateBlocStateDidChange(finalState, currentState);
-      })
-      .catch(this.handleError);
-  }
-
-  protected promisifyState(nextState: any): Promise<S> {
-    let promise: Promise<S>;
-
-    if (nextState instanceof Promise) {
-      promise = nextState;
-    } else if (nextState instanceof Error) {
-      promise = Promise.reject(nextState);
-    } else if (nextState instanceof Observable) {
-      promise = nextState.pipe(take(1)).toPromise();
-    } else {
-      promise = Promise.resolve(nextState ?? this.currentState);
-    }
-
-    return promise;
+    nextState = nextState ?? candidateState;
+    this.dispatchState(nextState);
+    this.notifyDelegateBlocStateDidChange(nextState, currentState);
   }
 
   protected dispatchState(state: S): void {
@@ -98,7 +98,7 @@ export abstract class Bloc<
   protected notifyDelegateBlocStateWillChange(
     currentState: S,
     nextState: S,
-  ): void {
+  ): S {
     if (this.delegateRespondsToMethod('blocStateWillChange')) {
       // @ts-ignore -- `delegate` is safe here,
       // thanks to`delegateRespondsToMethod`
@@ -107,6 +107,8 @@ export abstract class Bloc<
         nextState,
       });
     }
+
+    return null;
   }
 
   protected notifyDelegateBlocStateDidChange(
@@ -123,7 +125,7 @@ export abstract class Bloc<
     }
   }
 
-  protected handleError = (error: Error) => {
+  protected handleError = (error: Error | string) => {
     if (this.delegateRespondsToMethod('blocDidCatchError')) {
       if (!(error instanceof Error)) {
         error = new Error(error);
