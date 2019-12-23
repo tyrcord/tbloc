@@ -1,4 +1,4 @@
-import { IBlocEvent, IBlocEventMetada } from '../../src/interfaces';
+import { IBlocEvent } from '../../src/interfaces';
 
 export type PeopleBlocEventPayload = {
   firstname?: string;
@@ -8,8 +8,15 @@ export type PeopleBlocEventPayload = {
 
 export class PeopleBlocEvent implements IBlocEvent<PeopleBlocEventPayload> {
   public static Type = 'PeopleBlocEvent';
-  public error?: string | Error;
-  public meta?: IBlocEventMetada;
-  public payload: PeopleBlocEventPayload;
+
+  public static error() {
+    return new PeopleBlocEvent(null, new Error('error'));
+  }
+
   public type: string = PeopleBlocEvent.Type;
+
+  constructor(
+    public payload: PeopleBlocEventPayload,
+    public error?: string | Error,
+  ) {}
 }

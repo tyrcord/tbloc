@@ -1,12 +1,6 @@
-import { BidirectionalBlocUpdateStrategy } from '../enums';
-
-export interface IBlocEventMetada {
-  updateStrategy?: BidirectionalBlocUpdateStrategy;
-}
-
-export interface IBlocEvent<P extends object = {}, M extends object = {}> {
-  type: string;
+export interface IBlocEvent<P extends object = {}> {
+  type?: string;
   error?: Error | string;
-  meta?: M & IBlocEventMetada;
-  payload: P;
+  payload?: P;
+  resetState?: boolean;
 }

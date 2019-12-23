@@ -1,23 +1,26 @@
-import { Observable, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { catchError, concatMap } from 'rxjs/operators';
 
-import { BidirectionalBlocUpdateStrategy } from '../enums';
 import { BlocStateBuilder } from '../types';
 import { Bloc } from './bloc';
 
-import {
-  IBidirectionalBlocDelegate,
-  IBlocEvent,
-  IBlocStateBuilder,
-} from '../interfaces';
+import { IBlocEvent, IBlocStateBuilder } from '../interfaces';
 
 export abstract class BidirectionalBloc<
   E extends IBlocEvent,
-  S extends object = {},
-  D extends IBidirectionalBlocDelegate<E, S> = {}
-> extends Bloc<S, D> {
-  protected updateStrategy = BidirectionalBlocUpdateStrategy.merge;
-  protected eventController = new Subject<E>();
+  S extends object = {}
+> extends Bloc<S> {
+  protected internalEventController = new Subject<E>();
+  protected externalEventController = new Subject<E>();
+  protected errorController = new Subject<Error>();
+
+  public get onEvent(): Observable<E> {
+    return this.externalEventController.asObservable();
+  }
+
+  public get onError(): Observable<Error> {
+    return this.errorController.asObservable();
+  }
 
   constructor(
     initialState?: S,
@@ -25,87 +28,54 @@ export abstract class BidirectionalBloc<
   ) {
     super(initialState, builder);
 
-    this.eventController.subscribe((event: E) => {
-      let mappedState: Observable<S> | Promise<S> | S;
-      const currentState = this.currentState;
+    this.internalEventController
+      .pipe(
+        concatMap((event: E) => {
+          const currentState = this.currentState;
 
-      this.notifyDelegateBlocWillProcessEvent(event, currentState);
+          if (event.error != null) {
+            throw event.error;
+          } else if (event.resetState) {
+            return of(this.getInitialState());
+          }
 
-      try {
-        mappedState = this.mapEventToState(event, currentState);
-      } catch (error) {
-        mappedState = Promise.reject(error);
-      }
+          this.externalEventController.next(event);
 
-      this.promisifyState(mappedState)
-        .then((nextState: S) => {
-          const { meta } = event;
-          const updateStrategy =
-            meta && meta.updateStrategy
-              ? meta.updateStrategy
-              : this.updateStrategy;
-
-          this.updateState(nextState, updateStrategy);
-          this.notifyDelegateBlocDidProcessEvent(event, this.currentState);
-        })
-        .catch(this.handleError);
-    });
+          return this.mapEventToState(event, currentState);
+        }),
+        catchError(this.handleError),
+      )
+      .subscribe((nextState: S) => {
+        this.patchState(nextState);
+      });
   }
 
   public dispatchEvent(event: E): void {
-    this.eventController.next(event);
+    if (!this.internalEventController.closed) {
+      this.internalEventController.next(event);
+    }
+  }
+
+  public reset(): void {
+    this.dispatchEvent(({ resetState: true } as unknown) as E);
   }
 
   public dispose(): void {
-    this.eventController.complete();
+    this.internalEventController.complete();
+    this.externalEventController.complete();
+    this.errorController.complete();
     super.dispose();
   }
 
-  protected promisifyState(nextState: any): Promise<S> {
-    if (nextState instanceof Promise) {
-      return nextState;
-    } else if (nextState instanceof Error) {
-      return Promise.reject(nextState);
-    } else if (nextState instanceof Observable) {
-      return nextState.pipe(take(1)).toPromise();
+  protected handleError = (error: Error | string): Observable<S> => {
+    if (typeof error === 'string') {
+      error = new Error(error);
     }
 
-    return Promise.resolve(nextState ?? this.currentState);
-  }
+    this.errorController.next(error);
 
-  protected updateState(
-    nextState: S,
-    updateStrategy: BidirectionalBlocUpdateStrategy,
-  ): void {
-    if (updateStrategy === BidirectionalBlocUpdateStrategy.merge) {
-      this.patchState(nextState);
-    } else {
-      this.setState(nextState);
-    }
-  }
+    return of(this.currentState);
+  };
 
-  protected notifyDelegateBlocWillProcessEvent(event: E, state: S): void {
-    if (this.delegateRespondsToMethod('blocWillProcessEvent')) {
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      this.delegate.blocWillProcessEvent(this, event, state);
-    }
-  }
-
-  protected notifyDelegateBlocDidProcessEvent(event: E, state: S): void {
-    if (this.delegateRespondsToMethod('blocDidProcessEvent')) {
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      this.delegate.blocDidProcessEvent(this, event, state);
-    }
-  }
-
-  protected delegateRespondsToMethod(name: keyof D): boolean {
-    return super.delegateRespondsToMethod(name);
-  }
-
-  protected abstract mapEventToState(
-    event: E,
-    currentState: S,
-  ): Observable<S> | Promise<S> | S;
+  protected abstract mapEventToState(event: E, currentState: S): Observable<S>;
 }

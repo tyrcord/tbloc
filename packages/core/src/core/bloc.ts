@@ -1,29 +1,22 @@
+import { SubxList } from '@tutils/subx';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { IBlocDelegate, IBlocStateBuilder } from '../interfaces';
+import { IBlocStateBuilder } from '../interfaces';
 import { BlocStateBuilder } from '../types';
 
 function blocStateBuilder<S>(): S {
   return {} as S;
 }
 
-/**
- * Abstract class that
- */
-export abstract class Bloc<
-  S extends object = {},
-  D extends IBlocDelegate = {}
-> {
-  public delegate: D;
+export abstract class Bloc<S extends object = {}> {
   protected stateController: BehaviorSubject<S>;
-
-  protected buildDefaultState?: () => S;
+  protected subxList = new SubxList();
 
   public get currentState(): S {
     return this.stateController.getValue();
   }
 
-  public get stream(): Observable<S> {
+  public get onData(): Observable<S> {
     return this.stateController.asObservable();
   }
 
@@ -39,6 +32,7 @@ export abstract class Bloc<
   }
 
   public dispose(): void {
+    this.subxList.unsubscribeAll();
     this.stateController.complete();
   }
 
@@ -49,27 +43,12 @@ export abstract class Bloc<
           return this.stateBuilder();
         }
         return this.stateBuilder.buildDefaultState();
-      } else if (typeof this.buildDefaultState === 'function') {
-        return this.buildDefaultState();
       }
 
       return blocStateBuilder();
     }
 
     return this.initialState;
-  }
-
-  /**
-   * Returns a boolean value that indicates whether a BloC's delegate implements
-   * or inherits a method.
-   *
-   * @param name - the name of the delegate method
-   *
-   * @returns boolean
-   */
-  protected delegateRespondsToMethod(name: keyof D): boolean {
-    const delegate = this.delegate;
-    return delegate && typeof delegate[name] === 'function';
   }
 
   protected patchState = (candidateState: Partial<S>): void => {
@@ -80,60 +59,12 @@ export abstract class Bloc<
   };
 
   protected setState(candidateState: S): void {
-    const currentState = this.currentState;
-    let nextState = this.notifyDelegateBlocStateWillChange(
-      currentState,
-      candidateState,
-    );
-
-    nextState = nextState ?? candidateState;
-    this.dispatchState(nextState);
-    this.notifyDelegateBlocStateDidChange(nextState, currentState);
+    this.dispatchState(candidateState);
   }
 
   protected dispatchState(state: S): void {
-    this.stateController.next(state);
-  }
-
-  protected notifyDelegateBlocStateWillChange(
-    currentState: S,
-    nextState: S,
-  ): S {
-    if (this.delegateRespondsToMethod('blocStateWillChange')) {
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      this.delegate.blocStateWillChange(this, {
-        currentState,
-        nextState,
-      });
-    }
-
-    return null;
-  }
-
-  protected notifyDelegateBlocStateDidChange(
-    currentState: S,
-    previousState: S,
-  ): void {
-    if (this.delegateRespondsToMethod('blocStateDidChange')) {
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      this.delegate.blocStateDidChange(this, {
-        currentState,
-        previousState,
-      });
+    if (!this.stateController.closed) {
+      this.stateController.next(state);
     }
   }
-
-  protected handleError = (error: Error | string) => {
-    if (this.delegateRespondsToMethod('blocDidCatchError')) {
-      if (!(error instanceof Error)) {
-        error = new Error(error);
-      }
-
-      // @ts-ignore -- `delegate` is safe here,
-      // thanks to`delegateRespondsToMethod`
-      this.delegate.blocDidCatchError(this, error, this.currentState);
-    }
-  };
 }
