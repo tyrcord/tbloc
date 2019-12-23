@@ -17,6 +17,7 @@
     "format": "lerna run format",
     "build": "lerna run build",
     "test": "lerna run test",
-    "coverage": "lerna run coverage"
+    "coverage": "lerna run coverage",
+    "lint": "lerna run lint"
   }
 }
