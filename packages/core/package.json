@@ -1,6 +1,6 @@
 {
   "name": "@tbloc/core",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "author": "Tyrcord Inc. <dev@tyrcord.com>",
   "license": "ISC",
   "homepage": "https://github.com/tyrcord/tbloc/blob/master/packages/core/README.md",
@@ -27,8 +27,8 @@
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "dependencies": {
-    "rxjs": "6.5.3",
-    "@tutils/subx": "^0.4.10"
+    "@tutils/subx": "^0.4.10",
+    "rxjs": "6.5.3"
   },
   "devDependencies": {
     "@types/chai": "4.2.7",
