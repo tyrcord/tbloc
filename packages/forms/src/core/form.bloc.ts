@@ -1,16 +1,16 @@
 import { BidirectionalBloc, IBlocEvent } from '@tbloc/core';
-import { Observable, Subject } from 'rxjs';
+import { from, Observable, of, Subject } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ObjectSchema, ValidationError } from 'yup';
 
 import { FormBlocStateBuilder } from './form-bloc-state.builder';
-import { IFormBlocDelegate } from './interfaces/form-bloc-delegate.interface';
 import { IFormBlocState } from './interfaces/form-bloc-state.interface';
 
 export abstract class FormBloc<
   M extends object,
   E extends IBlocEvent,
   S extends IFormBlocState
-> extends BidirectionalBloc<E, S, IFormBlocDelegate<M, E, S>> {
+> extends BidirectionalBloc<E, S> {
   public schemaValidator: ObjectSchema<M>;
   protected modelController: Subject<M> = new Subject<M>();
   protected stateBuilder: FormBlocStateBuilder<S>;
@@ -28,51 +28,44 @@ export abstract class FormBloc<
     this.modelController.complete();
   }
 
-  protected delegateRespondsToMethod(
-    name: keyof IFormBlocDelegate<M, E, S>,
-  ): boolean {
-    return super.delegateRespondsToMethod(name);
+  protected mapEventToState(event: E, currentState: S): Observable<S> {
+    return this.mapStateToModel(currentState).pipe(
+      switchMap(currentModel => {
+        return this.mapEventToModel(event, currentModel);
+      }),
+      switchMap(candidateModel => {
+        return from(
+          this.schemaValidator.validate(candidateModel, {
+            abortEarly: false,
+          }),
+        ).pipe(
+          map((nextModel: M) => {
+            return [nextModel, null];
+          }),
+        );
+      }),
+      catchError((error: ValidationError) => {
+        if (error.inner.length) {
+          return of([error.value as M, error.inner]);
+        }
+        return of([error.value as M, [error]]);
+      }),
+      switchMap(([nextModel, errors]: [M, ValidationError[]]) => {
+        if (!errors) {
+          this.modelController.next(nextModel);
+        }
+
+        return this.mapModelToState(nextModel, errors);
+      }),
+    );
   }
 
-  protected async mapEventToState(event: E, currentState: S): Promise<S> {
-    const currentModel = this.mapStateToModel(currentState);
-    const candidateModel = this.mapEventToModel(event, currentModel);
+  protected abstract mapEventToModel(event: E, currentModel: M): Observable<M>;
 
-    let errors: ValidationError[] | null = null;
-    let model: M;
-
-    try {
-      model = await this.schemaValidator.validate(candidateModel, {
-        abortEarly: false,
-      });
-    } catch (validationError) {
-      if (validationError.inner.length) {
-        errors = (validationError as ValidationError).inner;
-      } else {
-        errors = [validationError];
-      }
-
-      model = (validationError as ValidationError).value;
-    }
-
-    if (!errors) {
-      this.modelController.next(model);
-
-      if (this.delegateRespondsToMethod('blocDidValidateModel')) {
-        // @ts-ignore -- `delegate` is safe here
-        this.delegate.blocDidValidateModel(this, event, model);
-      }
-    }
-
-    return this.mapModelToState(model, errors);
-  }
-
-  protected abstract mapEventToModel(event: E, currentModel: M): M;
-
-  protected abstract mapStateToModel(state: S): M;
+  protected abstract mapStateToModel(state: S): Observable<M>;
 
   protected abstract mapModelToState(
     model: M,
-    errors?: ValidationError[] | null,
-  ): S;
+    errors?: ValidationError[],
+  ): Observable<S>;
 }

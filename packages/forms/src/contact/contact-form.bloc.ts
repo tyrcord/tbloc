@@ -1,3 +1,4 @@
+import { Observable, of } from '@tbloc/core/node_modules/rxjs';
 import { ObjectSchema, ValidationError } from 'yup';
 
 import { FormBloc } from '../core/form.bloc';
@@ -50,32 +51,32 @@ export class ContactFormBloc extends FormBloc<
   protected mapEventToModel(
     event: ContactFormBlocEvent,
     currentModel: IContactFormBlocModel,
-  ): IContactFormBlocModel {
-    return {
+  ): Observable<IContactFormBlocModel> {
+    return of({
       ...currentModel,
       ...event.payload,
-    };
+    });
   }
 
   protected mapStateToModel(
     state: IContactFormBlocState,
-  ): IContactFormBlocModel {
+  ): Observable<IContactFormBlocModel> {
     const { email, message, name, subject } = state.fields;
 
-    return {
+    return of({
       email: email.value,
       message: message.value,
       name: name.value,
       subject: subject.value,
-    };
+    });
   }
 
   protected mapModelToState(
     model: IContactFormBlocModel,
     errors?: ValidationError[],
-  ): IContactFormBlocState {
+  ): Observable<IContactFormBlocState> {
     const state = this.stateBuilder.buildFromModel(model);
     this.stateBuilder.addErrorsToState(state, errors);
-    return state;
+    return of(state);
   }
 }
