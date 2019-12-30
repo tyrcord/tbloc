@@ -28,7 +28,7 @@
   "types": "dist/types/index.d.ts",
   "dependencies": {
     "@tutils/subx": "^0.4.10",
-    "rxjs": "6.5.3"
+    "rxjs": "6.5.4"
   },
   "devDependencies": {
     "@types/chai": "4.2.7",
