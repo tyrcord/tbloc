@@ -36,7 +36,7 @@
     "@types/mocha": "7.0.1",
     "@types/node": "13.7.1",
     "@types/sinon": "7.5.1",
-    "@types/yup": "0.26.31",
+    "@types/yup": "0.26.32",
     "chai": "4.2.0",
     "mocha": "7.0.1",
     "nyc": "15.0.0",
