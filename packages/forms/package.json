@@ -39,7 +39,7 @@
     "@types/yup": "0.26.34",
     "chai": "4.2.0",
     "mocha": "7.1.1",
-    "nyc": "15.0.0",
+    "nyc": "15.0.1",
     "prettier": "2.0.4",
     "sinon": "9.0.1",
     "source-map-support": "0.5.16",
