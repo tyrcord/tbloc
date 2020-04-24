@@ -38,7 +38,7 @@
     "mocha": "7.1.1",
     "nyc": "15.0.1",
     "prettier": "2.0.5",
-    "source-map-support": "0.5.18",
+    "source-map-support": "0.5.19",
     "ts-node": "8.9.0",
     "tslib": "1.11.1",
     "tslint": "5.20.1",
