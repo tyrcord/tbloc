@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/chai": "4.2.13",
     "@types/mocha": "8.0.3",
-    "@types/node": "14.11.5",
+    "@types/node": "14.11.6",
     "chai": "4.2.0",
     "mocha": "7.2.0",
     "nyc": "15.1.0",
